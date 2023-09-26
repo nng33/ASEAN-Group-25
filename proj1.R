@@ -1,5 +1,5 @@
 ## Frans : 
-## Nathan :
+## Nathan : s2524152
 ## Daiki Maruyama: s2547603
 
 ## Contribution to this project
