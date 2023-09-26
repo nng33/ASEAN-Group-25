@@ -1,5 +1,5 @@
 ## Group 25
-## Frans : 
+## Frans : s2591760
 ## Nathan : s2524152
 ## Daiki : s2547603
 
@@ -14,10 +14,17 @@ split_punct <- function(text, punct) {
   vect <- rep("",times = length(ie)+length(text))  ## empty character output vector 
   pos_punct <- ie+1:length(ie)  ## detecting the position of punct in the new vector
   vect[pos_punct] <- substr(text[ie],nchar(text[ie]),nchar(text[ie]))  ## putting punct in the new vector
-  text <- gsub(punct,"",text)  ## removing punct from words in text
+  text <- gsub(punct,"",text,fixed = TRUE)  ## removing punct from words in text
   vect[-pos_punct] <- text ## putting the remaining words in the new vector
   return(vect)
 }
 
-daiki <- c("An","omnishambles,","in","a","headless","chicken","factory")
-split_punct(daiki,",")
+a <- split_punct(a,",") 
+a <- split_punct(a,".")
+a <- split_punct(a,";")
+a <- split_punct(a,"!")
+a <- split_punct(a,":")
+a <- split_punct(a,"?")
+a
+
+
