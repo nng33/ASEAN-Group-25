@@ -42,7 +42,14 @@ T <- pt[!is.na(rowSums(pt,na.rm=FALSE)),]
 pt2 <- cbind(ia[1:(length(ia)-1)],ia[2:length(ia)])
 P <- pt2[!is.na(rowSums(pt2,na.rm=FALSE)),]
 
+#select 2 words from vector b k[i] and k[j] 
 
+#extract the sub-matrix from T who rows all have k[i] and k[j] in column 1 and 2
+#pick 1 element at random from the third column of this extract sub-matrix
+#using the sample function 
+
+
+cat(sample(b[], size = 50, prob = )) ##final function
 
 
 
