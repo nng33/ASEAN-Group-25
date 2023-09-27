@@ -35,3 +35,16 @@ a_order <- sort(a_tab, decreasing=TRUE)
 threshold <- a_order[1000]
 b <- a_uni[a_tab >= threshold]
 
+ia <- match(a_low, b)
+pt <- cbind(ia[1:(length(ia)-2)],ia[2:(length(ia)-1)],ia[3:length(ia)])
+T <- pt[!is.na(rowSums(pt,na.rm=FALSE)),]
+
+pt2 <- cbind(ia[1:(length(ia)-1)],ia[2:length(ia)])
+P <- pt2[!is.na(rowSums(pt2,na.rm=FALSE)),]
+
+
+
+
+
+
+
