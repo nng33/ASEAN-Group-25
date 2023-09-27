@@ -27,4 +27,11 @@ a <- split_punct(a,":")
 a <- split_punct(a,"?")
 a
 
-
+a_low <- tolower(a)
+a_uni <- unique(a_low)
+a_match <- match(a_low, a_uni)
+a_tab <-tabulate(a_match)
+a_order <- sort(a_tab, decreasing=TRUE)
+threshold <- a_order[1000]
+top_words <- a_low[a_tab >= threshold]
+#Creating vector b whose length is m
