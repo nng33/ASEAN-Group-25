@@ -9,6 +9,7 @@ setwd("C:/Users/maruw/ASEAN-Group-25") ## comment out of submitted
 a <- scan("4300-0.txt",what="character",skip=73,nlines=32858-73)
 a <- gsub("_(","",a,fixed=TRUE)
 
+#Question 4
 split_punct <- function(text, punct) {
   ie <- grep(punct, text, fixed=TRUE)  ## detecting the words in text containing punct
   vect <- rep("",times = length(ie)+length(text))  ## empty character output vector 
@@ -19,6 +20,7 @@ split_punct <- function(text, punct) {
   return(vect)
 }
 
+#Question 5
 a <- split_punct(a,",") 
 a <- split_punct(a,".")
 a <- split_punct(a,";")
@@ -27,6 +29,7 @@ a <- split_punct(a,":")
 a <- split_punct(a,"?")
 a
 
+#Question 6
 a_low <- tolower(a)
 a_uni <- unique(a_low)
 a_match <- match(a_low, a_uni)
@@ -35,6 +38,7 @@ a_order <- sort(a_tab, decreasing=TRUE)
 threshold <- a_order[1000]
 b <- a_uni[a_tab >= threshold]
 
+#Question 7
 ia <- match(a_low, b)
 pt <- cbind(ia[1:(length(ia)-2)],ia[2:(length(ia)-1)],ia[3:length(ia)])
 T <- pt[!is.na(rowSums(pt,na.rm=FALSE)),]
