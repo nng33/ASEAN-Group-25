@@ -39,18 +39,33 @@ threshold <- a_order[1000]
 b <- a_uni[a_tab >= threshold]
 
 #Question 7
+#create vector of indices matching the full text to the most common words 
 ia <- match(a_low, b)
+#create three-column matrix of indices where 
+#each row is a triplet of adjacent words
 pt <- cbind(ia[1:(length(ia)-2)],ia[2:(length(ia)-1)],ia[3:length(ia)])
+#remove rows that contain NA
 T <- pt[!is.na(rowSums(pt,na.rm=FALSE)),]
 
+#create a two-column matrix of indices where 
+#each row is a pair of adjacent-words 
 pt2 <- cbind(ia[1:(length(ia)-1)],ia[2:length(ia)])
+#remove rows that contain NA
 P <- pt2[!is.na(rowSums(pt2,na.rm=FALSE)),]
 
 #select 2 words from vector b k[i] and k[j] 
+sim <- sample(b,size=1)
+sim <- match(sim,b)
+k_i <- P[which(P[,1] == sim),]
+sim <- cbind(sim, sample(k_i[,2], size = 1))
+
+which((T[,1] == sim[1]) & (T[,2] == sim[2]))
+
 
 #extract the sub-matrix from T who rows all have k[i] and k[j] in column 1 and 2
 #pick 1 element at random from the third column of this extract sub-matrix
 #using the sample function 
+
 
 
 cat(sample(b[], size = 50, prob = )) ##final function
