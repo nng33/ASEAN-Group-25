@@ -59,7 +59,7 @@ sim <- match(sim,b)
 k_i <- P[which(P[,1] == sim),]
 sim <- cbind(sim, sample(k_i[,2], size = 1))
 
-which((T[,1] == sim[1]) & (T[,2] == sim[2]))
+which(T[,1] == sim[1] & T[,2] == sim[2]) 
 
 
 #extract the sub-matrix from T who rows all have k[i] and k[j] in column 1 and 2
