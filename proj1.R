@@ -5,7 +5,7 @@
 
 ## Contribution to this project
 
-setwd("C:/Users/maruw/ASEAN-Group-25") ## comment out of submitted
+setwd("M:/ASEAN-Group-25") ## comment out of submitted
 a <- scan("4300-0.txt",what="character",skip=73,nlines=32858-73)
 a <- gsub("_(","",a,fixed=TRUE)
 
@@ -55,10 +55,13 @@ P <- pt2[!is.na(rowSums(pt2,na.rm=FALSE)),]
 
 ###################################################################################
 
+# Simulate first word
+dict <- match(a_low,b)
+dict <- na.omit(dict)
 sim <- NULL
-#select 2 words from vector b k[i] and k[j] 
-sim <- sample(b,size=1)
-sim <- match(sim,b)
+sim <- sample(dict,size=1)
+
+# Simulate second word
 #extract the sub-matrix from T who rows all have k[i] and k[j] in column 1 and 2
 k_i <- P[which(P[,1] == sim),]
 sim <- cbind(sim, sample(k_i[,2], size = 1))
@@ -96,9 +99,6 @@ sim_text <- b[sim]
 
 # No. 9
 
-dict <- match(a_low,b)
-dict <- na.omit(dict)
-
 alt <- NULL
 for (k in 1:50){
   new <- sample(dict, size = 1)
@@ -107,19 +107,11 @@ for (k in 1:50){
 
 alt_text <- b[alt]
 
+firstup <- function(x) {
+  substr(x, 1, 1) <- toupper(substr(x, 1, 1))
+  return(x)
+}
+
+firstup(a)
 
 
-
-
-
-
-
-
-
-
-
-cat(sample(b[], size = 50, prob = )) ##final function
-
-
-
-pls_work <- generate(sim[,2:3])
