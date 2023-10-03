@@ -53,18 +53,68 @@ pt2 <- cbind(ia[1:(length(ia)-1)],ia[2:length(ia)])
 #remove rows that contain NA
 P <- pt2[!is.na(rowSums(pt2,na.rm=FALSE)),]
 
+###################################################################################
+
+sim <- NULL
 #select 2 words from vector b k[i] and k[j] 
 sim <- sample(b,size=1)
 sim <- match(sim,b)
+#extract the sub-matrix from T who rows all have k[i] and k[j] in column 1 and 2
 k_i <- P[which(P[,1] == sim),]
 sim <- cbind(sim, sample(k_i[,2], size = 1))
 
-which(T[,1] == sim[1] & T[,2] == sim[2]) 
+
+##################################################################################
+
+# create 50
+generate <- function(list) {
+  col_T <- T[which((T[,1] == list[1]) & (T[,2] == list[2])),]
+  if (length(col_T) != 0){
+    next_index <- sample(col_T[,3], size = 1)
+  }
+  else {
+    input <- list[2]
+    col_P <- P[which(P[,1] == input),]
+    if (length(col_P != 0)){
+      next_index <- sample(col_P[,2], size = 1)
+    }
+    else{
+      next_word <- sample(b,size=1)
+      next_index <- match(next_word,b)
+    }
+  }
+  return(next_index)
+}
+
+for (p in 1:48){
+  next_word <- generate(sim[p:p+1])
+  sim <- cbind(sim, next_word)
+}
+
+sim <- as.numeric(sim)
+sim_text <- b[sim]
+
+# No. 9
+
+dict <- match(a_low,b)
+dict <- na.omit(dict)
+
+alt <- NULL
+for (k in 1:50){
+  new <- sample(dict, size = 1)
+  alt <- cbind(alt, new)
+}
+
+alt_text <- b[alt]
 
 
-#extract the sub-matrix from T who rows all have k[i] and k[j] in column 1 and 2
-#pick 1 element at random from the third column of this extract sub-matrix
-#using the sample function 
+
+
+
+
+
+
+
 
 
 
@@ -72,5 +122,4 @@ cat(sample(b[], size = 50, prob = )) ##final function
 
 
 
-
-
+pls_work <- generate(sim[,2:3])
