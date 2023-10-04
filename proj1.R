@@ -116,6 +116,4 @@ firstup <- function(x) {
   return(x)
 }
 
-firstup(a)
-
 
