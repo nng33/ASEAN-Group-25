@@ -4,12 +4,16 @@
 ## Daiki : s2547603
 
 ## Contribution to this project
+## Frans : 
+## Nathan : 
+## Daiki : 
 
-setwd("M:/ASEAN-Group-25") ## comment out of submitted
-a <- scan("4300-0.txt",what="character",skip=73,nlines=32858-73)
-a <- gsub("_(","",a,fixed=TRUE)
+#
+setwd("C:/Users/maruw/ASEAN-Group-25") # setting the working directory
+a <- scan("4300-0.txt",what="character",skip=73,nlines=32858-73) # scanning the text file
+a <- gsub("_(","",a,fixed=TRUE) # 
 
-#Question 4
+# the function to split each punctuation
 split_punct <- function(text, punct) {
   ie <- grep(punct, text, fixed=TRUE)  ## detecting the words in text containing punct
   vect <- rep("",times = length(ie)+length(text))  ## empty character output vector 
