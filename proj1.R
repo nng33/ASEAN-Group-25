@@ -17,15 +17,28 @@ a <- gsub("_(", "", a, fixed=TRUE) ## remove "_("
 
 ###########################################################################
 
-# 4: Create the function to separate each punctuation mark
+# 4: Create a function to separate each punctuation mark
 split_punct <- function(text, punct) {
-  ie <- grep(punct, text, fixed=TRUE)  ## detect the words containing the punctuation mark
-  vect <- rep("",times = length(ie) + length(text))  ## vector to store the punctuation marks 
-  pos_punct <- ie + 1:length(ie)  ## where should the punctuation mark go in the new vector
-  vect[pos_punct] <- substr(text[ie], nchar(text[ie]), nchar(text[ie]))  ## insert the punctuation marks in the new vector
-  text <- gsub(punct, "", text, fixed = TRUE)  ## remove the punctuation mark from the text
-  vect[-pos_punct] <- text ## insert the remaining words in the new vector
-  return(vect) ## return a value
+  ## obtain indices of the words containing the punctuation mark
+  ie <- grep(punct, text, fixed=TRUE)  
+  
+  ## create an empty vector to store the punctuation marks 
+  vect <- rep("",times = length(ie) + length(text))  
+  
+  ## obtain position of the punctuation mark in the new vector
+  pos_punct <- ie + 1:length(ie)  
+  
+  ## insert punctuation marks in the new vector
+  vect[pos_punct] <- substr(text[ie], nchar(text[ie]), nchar(text[ie]))  
+  
+  ## remove punctuation marks from the main text
+  text <- gsub(punct, "", text, fixed = TRUE)  
+  
+  ## insert the remaining words in the new vector
+  vect[-pos_punct] <- text 
+  
+  ## return the new vector
+  return(vect) 
 }
 
 ###########################################################################
@@ -40,38 +53,71 @@ a <- split_punct(a, "?") ## separate "?"
 
 ###########################################################################
 
-# 6: Create the vector of top 1008 unique words called "b"
+# 6: Create a vector of top (approx.) 1000 unique words called "b"
 a_low <- tolower(a) ## replace capital letters with lower case letters
+
 a_uni <- unique(a_low) ## vector of unique words
+
 a_match <- match(a_low, a_uni) ## detect which element in a_uni is element in a_low
-a_tab <-tabulate(a_match) ## count up the number of occurances of each unique word
+
+a_tab <-tabulate(a_match) ## count up the number of occurrences of each unique word
+
 a_order <- sort(a_tab, decreasing=TRUE) ## sort a_tab in descending order
-threshold <- a_order[1000] ## gain the threshold number of occurances 
-b <- a_uni[a_tab >= threshold] ## create the vector b
+
+threshold <- a_order[1000] ## gain the number of occurrences threshold for the top 1000 words
+
+b <- a_uni[a_tab >= threshold] ## store all words that has occurrences higher than the threshold into b
 
 ###########################################################################
 
-# 7: Create the matrices "T" and "P"
+# 7: Create the matrices of common word triplets "T" and pairs "P"
+
 ia <- match(a_low, b) ## vector of indices matching the full text to b
-pt <- cbind(ia[1:(length(ia)-2)],ia[2:(length(ia)-1)],ia[3:length(ia)]) 
+
 ## create three-column matrix of indices where each row is a triplet of adjacent words
+## first column is ia, second column is ia shifted up by 1, and third column is ia shifted up by 2
+## this implies that the last two rows of ia will be unusable
+pt <- cbind(ia[1:(length(ia)-2)],ia[2:(length(ia)-1)],ia[3:length(ia)]) 
+
+## remove rows of NA from pt to get the final matrix of triplets of adjacent words
 T <- pt[!is.na(rowSums(pt,na.rm=FALSE)),] ## remove rows containing NA
 
-pt2 <- cbind(ia[1:(length(ia)-1)],ia[2:length(ia)])
 ## create a two-column matrix of indices where each row is a pair of adjacent words 
-P <- pt2[!is.na(rowSums(pt2,na.rm=FALSE)),] ## remove rows that contain NA
+## first column is ia, second column is ia shifted up by 1
+## this implies that the last row of ia will be unusable
+pt2 <- cbind(ia[1:(length(ia)-1)],ia[2:length(ia)])
+
+## remove rows that contain NA to get the final matrix of pairs of adjacent words
+P <- pt2[!is.na(rowSums(pt2,na.rm=FALSE)),]
 
 ###########################################################################
 
 # 8: Simulate 50-word sections
+
 #### simulate first word
-dict <- match(a_low, b) ######### same as ia??
-dict <- na.omit(dict) ## remove NA
-sim <- NULL ## empty vector
-sim <- sample(dict,size=1) ## randomly choose first word from dict
+
+## remove NA from ia 
+ia_mod <- na.omit(ia) 
+
+## randomly choose first word from the text that exists in b (i.e, sample ia_mod)
+sim <- sample(ia_mod,size=1) 
 
 #### simulate second word
-k_i <- P[which(P[,1] == sim),] 
+
+
+####################################################################
+# make 2 functions to generate word from P and T
+# make all variables in the function contained
+# sampling based on common word frequencies in generate() is wrong)
+####################################################################
+
+
+
+
+## If the first word exist in the first column of P,
+## randomly choose a word from the second column of P of the corresponding row
+k_i <- P[which(P[,1] == sim),]
+
 ## extract all rows containing sim in the first column
 sim <- cbind(sim, sample(k_i[,2], size = 1)) 
 ## randomly choose the number from k_i and connect it to sim
