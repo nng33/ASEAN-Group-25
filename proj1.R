@@ -1,7 +1,8 @@
 ## Group 25
 ## Frans : s2591760
-## Nathan : s2524152
 ## Daiki : s2547603
+## Nathan : s2524152
+
 
 ## Contribution to this project
 ## All group members Collaborated together to create the simulation of the 50-word sections from the model
@@ -10,17 +11,35 @@
 ## Daiki (32%): Handled the data pre-processing part of the task
 ## Nathan (33%): Responsible for creating the matrices of common word triplets and pairs
 
-###########################################################################
+
+#######################################################################################################################
+
+
+## This program simulates 50-word sections according to the Ulysses text. 
+## The model's vocabulary is the top m = (approx.) 1000 most common words stored in a vector b.
+## The dependency between each word is accounted for up until the two words preceding them.
+## Triplets and pairs of adjacent words matrices, T and P, are created and used to generate each word
+## with the correct (conditional) probability.
+
+## For comparison, another 50-word sections is simulated by 50 repeated independent sampling of the
+## top m common words based on common word frequencies (i.e., ignoring dependency between words).
+
+## Finally, the model's dictionary is updated such that the words that most often (> 50%) start with 
+## a capital letter also start with a capital letter in the simulated text. Another 50-word sections 
+## is then simulated with the updated vocabulary.
+
+
+#######################################################################################################################
 
 
 # 3: Read the text file
 
-setwd("C:/Users/maruw/ASEAN-Group-25") ## set the working directory
+# setwd("C:/Users/maruw/ASEAN-Group-25") ## set the working directory
 a <- scan("4300-0.txt", what="character", skip=73, nlines=32858-73) ## read the text file
 a <- gsub("_(", "", a, fixed=TRUE) ## remove "_("
 
 
-###########################################################################
+#######################################################################################################################
 
 
 # 4: Create a function to separate each punctuation mark
@@ -49,7 +68,7 @@ split_punct <- function(text, punct) {
 }
 
 
-###########################################################################
+#######################################################################################################################
 
 
 # 5: Separate the punctuation marks
@@ -62,39 +81,49 @@ a <- split_punct(a, ":") ## separate ":"
 a <- split_punct(a, "?") ## separate "?"
 
 
-###########################################################################
+#######################################################################################################################
 
 
-# 6: Create a vector of top (approx.) 1000 unique words called "b"
+# 6: Create a vector of top m most common words called "b"
 
-a_low <- tolower(a) ## replace capital letters with lower case letters
+## replace all capital letters with lower case letters
+a_low <- tolower(a) 
 
-a_uni <- unique(a_low) ## vector of unique words
+## create a vector of unique words in a_low
+a_uni <- unique(a_low) 
 
-a_match <- match(a_low, a_uni) ## detect which element of a_uni is element of a_low
+## detect which element of a_uni is element of a_low
+a_match <- match(a_low, a_uni) 
 
-a_tab <-tabulate(a_match) ## count up the number of occurrences of each unique word
+## count up the number of occurrences of each unique word
+a_tab <-tabulate(a_match) 
 
-a_order <- sort(a_tab, decreasing=TRUE) ## sort a_tab in descending order
+## sort a_tab in descending order
+a_order <- sort(a_tab, decreasing=TRUE) 
 
-threshold <- a_order[1000] ## gain the number of occurrences threshold for the top 1000 words
+## consider the top m = 1000 words
+m = 1000 
 
-b <- a_uni[a_tab >= threshold] ## store all words that has occurrences higher than the threshold into b
+## gain the number of occurrences threshold for the top m words
+threshold <- a_order[m] 
+
+## store all words that has occurrences higher than the threshold into a vector b
+b <- a_uni[a_tab >= threshold] 
 
 
-###########################################################################
+#######################################################################################################################
 
 
 # 7: Create the matrices of common word triplets "T" and pairs "P"
 
-ia <- match(a_low, b) ## vector of indices matching the full text to b
+ia <- match(a_low, b) ## vector of indices of b matched to a_low
 
 ## create three-column matrix of indices where each row is a triplet of adjacent words
 ## first column is ia, second column is ia shifted up by 1, and third column is ia shifted up by 2
 ## this implies that the last two rows of ia will be unusable
 pre_T <- cbind(ia[1:(length(ia)-2)], ia[2:(length(ia)-1)], ia[3:length(ia)]) 
 
-## remove rows of NA from pt to get the final matrix of triplets of adjacent words
+## remove rows of NA from pre_T to get the final matrix of triplets of adjacent words
 T <- pre_T[!is.na(rowSums(pre_T, na.rm=FALSE)),] 
 
 ## create a two-column matrix of indices where each row is a pair of adjacent words 
@@ -106,134 +135,202 @@ pre_P <- cbind(ia[1:(length(ia)-1)], ia[2:length(ia)])
 P <- pre_P[!is.na(rowSums(pre_P, na.rm=FALSE)),]
 
 
-###########################################################################
+#######################################################################################################################
 
 
 # 8: Simulate 50-word sections
 
 #### simulate first word
 
-## remove NA from ia 
+## ia with NA entries removed
 ia_mod <- na.omit(ia) 
 
-## randomly choose first word from the text that exists in b (i.e, sample ia_mod)
+## randomly choose first word index from the text that exists in b based on common word frequencies
 sim <- sample(ia_mod, size=1)
 
 
 #### simulate second word
 
-## generate2 will simulate words based on P
-## If the first word exists in the first column of P,
-## randomly choose a word from the second column of P corresponding to the rows of ia_mod
+## the function generate2() takes 3 inputs: 
+## (i) a vector of simulated indices with length 1 or 2, v
+## (ii) a vector of indices of the words that exists in b, ia_mod 
+## (iii) the pair of adjacent words matrix, P
+## and outputs the next simulated index depending on the index preceding it, next_index.
 
-generate2 <- function(list,ia_mod,P){
-  ## extract all rows containing sim in the first column
-  ## if there are elements in col_P that exist, we sample the word based on common word pairs
+generate2 <- function(v, ia_mod, P){
+  ## col_P contains all rows of P whose first column is the last entry of v
+  col_P <- P[which(P[,1] == v[length(v)]),]
+  
+  ## if col_P is not empty, randomly sample the second column of col_P 
   ## otherwise sample the word based on common word frequencies
-  col_P <- P[which(P[,1] == list[1]),]
   if (length(col_P != 0)){
     next_index <- sample(col_P[,2], size = 1)
   }
   else{
     next_index <- sample(ia_mod, size = 1)
   }
+  
   return(next_index)
 }
 
-next_index <- generate2(sim,ia_mod,P) ## use the above function to simulate the second index
-sim <- cbind(sim, next_index) ## column bind the previous index to sim
+## simulate the second index
+next_index <- generate2(sim, ia_mod, P) 
 
-## generate3 will simulate words based on P and T
-## If the first word exists in the first column of T and second word exists in the second column of T,
-## randomly choose a word from the third column of T corresponding to the rows of ia_mod
+## column bind the simulated index to sim
+sim <- cbind(sim, next_index) 
 
-generate3 <- function(list,ia_mod,P,T) {
-  ## extract all rows containing sim in the first column
-  ## if there are elements in col_T that exist, we sample the word based on common word pairs
-  ## otherwise sample the word based on common word frequencies
-  col_T <- T[which((T[,1] == list[1]) & (T[,2] == list[2])),]  
+## The function generate3() takes 4 inputs:
+## (i) a vector of simulated index of with length 2, v
+## (ii) a vector of indices of the words that exists in b, ia_mod 
+## (iii) the pair of adjacent words matrix, P
+## (iv) the triplet of adjacent words matrix, T
+## and outputs the next simulated index depending on the two indices preceding it, next_index.
+
+generate3 <- function(v, ia_mod, P, T) {
+  ## col_T contains all rows of T whose first and second column is the first and second entry of v, respectively
+  col_T <- T[which((T[,1] == v[1]) & (T[,2] == v[2])),]  
+  
+  ## if col_T is not empty, randomly sample the third column of col_T
+  ## otherwise, generate the next index based on the last entry of v
   if (length(col_T) != 0){
     next_index <- sample(col_T[,3], size = 1)
   }
   else {
-    next_index <- generate2(list,ia_mod,P)
+    next_index <- generate2(v, ia_mod, P)
   }
   return(next_index) 
 }
 
 
-#### generate 50 words
+### simulate the rest 48 words
 
 for (p in 1:48){
-  next_index <- generate3(sim[p:p+1], ia_mod, P, T) ## generate the next word using the previous two indices
-  sim <- cbind(sim, next_index) ## column bind the previous index to sim
+  ## generate the next index based on the two index preceding it
+  next_index <- generate3(sim[p:p+1], ia_mod, P, T)
+  
+  ## column bind the generated index to sim
+  sim <- cbind(sim, next_index)
 }
 
-sim_text <- b[sim] ## match the indices of the generated words (based on word pairs) to b and assign to new variable
-cat(sim_text) ## print the corresponding sample of words
+## match the simulated indices to b
+sim_text <- b[sim] 
 
+## print the simulated 50-word sections
+cat(sim_text) 
 
-###########################################################################
+#######################################################################################################################
 
 
 # 9: Simulate 50-word sections where the word probabilities are based on the common word frequencies
 
-sim2 <- sample(ia_mod, size = 50, replace = TRUE) ## sample 50 word indices from ia_mod with replacement
-sim2_text <- b[sim2] ## match the indices of the generated words (based on common word frequencies) to b and assign to new variable
-cat(sim2_text) ## print the corresponding sample of words
+## sample 50 word indices from ia_mod
+sim2 <- sample(ia_mod, size = 50, replace = TRUE) 
+
+## match the simulated indices to b
+sim2_text <- b[sim2] 
+
+## print the simulated text
+cat(sim2_text) 
+
+### compare the output of step 8 and 9
+## The text generated based on T tends to be more meaningful than the text simulated by independent sampling 
+## based on common word frequencies because all words of the former one are related to each other;
+## on the other hand, the latter is simply 50 repeated independent sampling.
 
 
-###########################################################################
+#######################################################################################################################
 
 
-# 10: Modified version to consider the words that most often start with a capital letter
+# 10: Create a modified version of b such that words that most often start with a capital letter 
+# also start with capital letter in the simulated text
+
+
+## The function capitalise() takes 1 input: a vector of one word, x
+## and outputs the same word with its first letter capitalised
 
 capitalise <- function(x) {
-  ## extract the first letter and capitalize it and replace it 
+  ## replace the first letter of x by its capitalised version
   substr(x, 1, 1) <- toupper(substr(x, 1, 1)) 
   return(x) 
 }
 
+## capitalise all the first letters of each word in a
+capital <- capitalise(a)
 
-capital <- capitalise(a) ## use the above function to capitalize all the first letters of each word in a
-capz_index <- na.omit(match(capital,a)) ## indices of capital letters in a excluding the NAs
-capz <- a[capz_index] ## match the indices of all capital letters in a
-capz_uni <- unique(capz) ## obtain the unique capital words
-capz_unib <- capitalise(b[na.omit(match(tolower(capz_uni),b))]) ## obtain the unique capital letters in b excluding the NAs
-low_capz <- tolower(capz_unib) ## replace capital letters with lower case letters
+## obtain indices of words starting with a capital letter in a without NA entries
+capz_index <- na.omit(match(capital, a)) 
 
-## count_capital is the number of capital words in a with the same order as capz_unib
-count_capital <- NULL ## create an empty vector
+## obtain the words starting with a capital letter in a
+capz <- a[capz_index] 
+
+## obtain all the unique capital words
+capz_uni <- unique(capz) 
+
+## obtain the unique capital letters that are included in b with the NA entries removed
+capz_unib <- capitalise(b[na.omit(match(tolower(capz_uni), b))]) 
+
+## replace capital letters with lower case letters
+low_capz <- tolower(capz_unib) 
+
+## obtain the frequency of words starting in capital letters in the same order as capz_unib
+count_capital <- NULL
 for (k in 1:length(capz_unib)){
-  entry <- length(which(a == capz_unib[k])) ## obtain the frequency of each word that starts with a capital letter
-  count_capital <- cbind(count_capital,entry) ## column bind the result to count_capital
+  entry <- length(which(a == capz_unib[k])) 
+  count_capital <- cbind(count_capital, entry) 
 } 
 
-## count_low is the count of capz_unib words that begins with a lowercase letter in a
-count_low <- NULL ## create an empty vector
+## obtain the frequency of words in capz_unib that start with a lower case letter
+count_low <- NULL
 for (k in 1:length(low_capz)){
-  entry <- length(which(a == low_capz[k])) ## obtain the frequency of each word that starts with a lowercase letter
-  count_low <- cbind(count_low,entry) ## column bind the result to count_low
+  entry <- length(which(a == low_capz[k])) 
+  count_low <- cbind(count_low, entry) 
 } 
 
-probability <- count_capital/(count_capital + count_low) ## calculate the occurrences of capitalized and non-capitalized words
-freq_cap <- capz_unib[which(probability > 0.5)] ## obtain the index of words that are most often start with a capital letter (more than 50% of the time)
-low_freq_cap <- tolower(freq_cap) ## convert the capitalized words to lowercase words 
-b_update <- b ## clone b into a new variable
-b_update[match(low_freq_cap,b_update)] <- freq_cap ## replace all words that most often start with a capital letter with its capitalized version
+## calculate the probability of each word starting with a capital letter
+probability <- count_capital/(count_capital + count_low) 
 
-ia2 <- match(a,b_update) ## vector of indices matching the full text of b_update
-ia2_mod <- na.omit(ia2) ## remove NA from ia2
+## obtain the words that start with a capital letter more than 50% of the time
+freq_cap <- capz_unib[which(probability > 0.5)] 
 
-sim3 <- sample(ia2_mod,size=1) ## randomly choose first word from the text that exists in b_update (i.e, sample ia2_mod)
-next_index <- generate2(sim3,ia2_mod,P) ## simulate the second index 
-sim3 <- cbind(sim3, next_index) ## column bind the previous index to sim3
+## convert the words in freq_cap to lowercase words 
+low_freq_cap <- tolower(freq_cap) 
 
+## clone b into b_update
+b_update <- b 
+
+## replace all the words in b_update that most often start with a capital letter with its capitalized version
+b_update[match(low_freq_cap, b_update)] <- freq_cap 
+
+
+### simulate 50-word sections with updated b 
+
+## vector of indices matching the full text of b_update
+ia2 <- match(a, b_update)
+
+## remove NA from ia2
+ia2_mod <- na.omit(ia2) 
+
+## simulate the first index by randomly selecting a word from the text that exists in b_update
+sim3 <- sample(ia2_mod, size=1) 
+
+## simulate the second index 
+next_index <- generate2(sim3, ia2_mod,P) 
+
+## column bind the second index to sim3
+sim3 <- cbind(sim3, next_index) 
+
+## simulate the rest 48 indices
 for (p in 1:48){
-  next_index <- generate3(sim3[p:p+1],ia2_mod,P,T) ## generate the next index using the previous two words
-  sim3 <- cbind(sim3, next_index) ## column bind the previous index to sim3
+  ## generate the next index using the previous two words
+  next_index <- generate3(sim3[p:p+1], ia2_mod, P, T) 
+  
+  ## column bind the previous index to sim3
+  sim3 <- cbind(sim3, next_index) 
 } 
 
-sim3_text <- b_update[sim3] ## match the indices of the generated words to b_update and assign to new variable
-cat(sim3_text) ## print the corresponding sample of words
+## match the indices of the generated words to b_update
+sim3_text <- b_update[sim3] 
+
+## print the corresponding sample of words
+cat(sim3_text) 
 
