@@ -20,4 +20,12 @@
 
 #######################################################################################################################
 
-setwd("C:/Users/maruw/ASEAN-Group-25") ## set the working directory
+# setwd("C:/Users/maruw/ASEAN-Group-25") ## set the working directory
+
+qsim <- function(mf, mb, a.rate, trb, trf, tmb, tmf, maxb){
+  
+  
+  
+}
+
+qsim(5,5,.1,40,40,30,30,20)
