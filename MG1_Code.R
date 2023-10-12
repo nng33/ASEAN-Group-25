@@ -27,14 +27,18 @@ simulate_MG1_fixed_duration <- function(arrival_rate, service_min, service_max) 
         # Return results
         return(list(starting_service = starting_service, 
                     finishing_time = finishing_time, 
-                    response_times = response_times))
+                    Wq = Wq))
 }
 
 # Example simulation for 7200 seconds
 set.seed(123)
-simulation_results <- simulate_MG1_fixed_duration(arrival_rate = 1, service_min = 1, service_max = 3)
+simulation_results <- simulate_MG1_fixed_duration(arrival_rate = 0.1, service_min = 30, service_max = 70)
 
 # Display results
-cat("Arrival Times:", simulation_results$arrivals, "\n")
-cat("Departure Times:", simulation_results$departures, "\n")
-cat("Response Times:", simulation_results$response_times, "\n")
+cat("Arrival Times:", simulation_results$starting_service, "\n")
+cat("Departure Times:", simulation_results$finishing_time, "\n")
+cat("Response Times:", simulation_results$Wq, "\n")
+
+# Display average waiting time
+average_waiting_time <- mean(simulation_results$Wq, na.rm = TRUE)
+cat("Average Waiting Time:", average_waiting_time, "\n")
