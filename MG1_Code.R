@@ -15,7 +15,7 @@ simulate_MG1_fixed_duration <- function(arrival_rate, service_min, service_max) 
                         service_time <- runif(1, min = service_min, max = service_max)
                         
                         # time in which the customer is finished being served 
-                        # is the sum of starting serivce time and actual service time
+                        # is the sum of starting service time and actual service time
                         finishing_time <- c(finishing_time, arrival_time + service_time)
                         starting_service <- c(starting_service, arrival_time)
                 }
