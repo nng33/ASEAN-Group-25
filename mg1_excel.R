@@ -35,7 +35,7 @@ time_service_ends <- time_service_begins + service_time
 # number in queue
 qnum <- 0
 
-## Simulate the until time service ends < 7200
+## Simulate new customers until time service ends < 7200
 
 i <- 1
 while (time_service_ends[i] < t.end){
