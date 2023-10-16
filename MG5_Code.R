@@ -1,11 +1,10 @@
 # Simulate M/G/5
 MG5 <- function(mf, a.rate, trf, tmf){
-
   # time period
-  t.end <- 3600*2
+  t.end <- 7200
   
-  # Checkin period
-  checkin_end <- 3600*1.5
+  # Check-in period
+  checkin_end <- 5400
   
   # Initialise value
   
@@ -45,7 +44,7 @@ MG5 <- function(mf, a.rate, trf, tmf){
     arrival_time_entry <- tba_entry + arrival_time[i]
     arrival_time <- rbind(arrival_time, arrival_time_entry)
     
-    # choose which server to go
+    # choose which station to go
     shortest_qlen <- min(french_station[[1]][i,4],french_station[[2]][i,4],french_station[[3]][i,4],
                          french_station[[4]][i,4],french_station[[5]][i,4],na.rm=TRUE)
     for (j in 1:mf){
@@ -91,14 +90,13 @@ MG5 <- function(mf, a.rate, trf, tmf){
     i <- i + 1
   }
   
-  nf <- 0
-  for (p in 2:t.end){
-    nf <- rbind(nf, (french_station[[1]][p,4] + french_station[[2]][p,4] + french_station[[3]][p,4] +
-                  french_station[[4]][p,4] + french_station[[5]][p,4])/mf )
-  }
+  #nf <- 0
+  #for (p in 2:t.end){
+   # nf <- rbind(nf, (french_station[[1]][p,4] + french_station[[2]][p,4] + french_station[[3]][p,4] +
+    #              french_station[[4]][p,4] + french_station[[5]][p,4])/mf )
   
-  eq <- 
-  return(french_station, nf, eq)
+  #eq <- 
+  return(french_station) # We wanto to return nf and eq
 }
 
 a <- MG5(mf=5, a.rate=0.1, trf=30, tmf=70)
