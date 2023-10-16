@@ -1,21 +1,9 @@
-mg5 <- function(){
-  # Simulate M/G/2
-  
+mg5 <- function(mf=5,a.rate=.1,trf=40,tmf=30){
+
   # set parameters:
-  
-  # arrival rate per second
-  a.rate <- 0.1
-  
-  # service rate:
-  # French ~ uniform (tmf, tmf+trf) in seconds
-  tmf <- 30
-  trf <- 40
-  
+
   # time period
   t.end <- 3600*2
-  
-  # number of french station
-  mf <- 5
   
   # Initialise value
   
@@ -103,4 +91,3 @@ mg5 <- function(){
   }
   return(french_station)
 }
-
