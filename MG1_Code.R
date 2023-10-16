@@ -1,4 +1,4 @@
-# Function to simulate M/G/1 queue for a fixed duration
+# Function to simulate M/G/5 queue for a fixed duration
 
 qsim <- function(mf = 5, arrival_rate, service_min, service_max) {
         simulation_duration <- 7200  # Duration in seconds of queue
