@@ -30,6 +30,7 @@ mg5 <- function(){
   
   # for each station, first col is start time, second col is service time,
   # third col is end time
+  # forth col is the number of people in the queue
   french_station <- list(station_1 = matrix(0,1,4),
                          station_2 = matrix(0,1,4),
                          station_3 = matrix(0,1,4),
@@ -41,12 +42,13 @@ mg5 <- function(){
   wait <- 0
   
   # start simulation
-  i <- 1
+  i <- 1 # previous customer
+  # change to max(arrival times) < 1h30min
   while (max(french_station[[1]][i,3],french_station[[2]][i,3],french_station[[3]][i,3],
              french_station[[4]][i,3],french_station[[5]][i,3], na.rm=TRUE) < t.end){
     
     # interarrival time
-    tba_entry <- max(1,round(rexp(1, rate = a.rate),0))
+    tba_entry <- max(1,round(rexp(1, rate = a.rate),0)) # deal with integer seconds only
     tba <- rbind(tba, tba_entry)
     
     # arrival item
@@ -64,6 +66,7 @@ mg5 <- function(){
       }
     }
     
+    # station j has the shortest queue length
     # only fill in relevant station, j
     
     # start time is as soon as you arrive or as soon as previous customer is 
@@ -82,6 +85,7 @@ mg5 <- function(){
       qnum <- rbind(qnum, qnum_entry)
     }
     
+    # entry for current customer
     entry <- c(start_time, service_time, end_time, qnum[french_number_entry])
     french_station[[j]] <- rbind(french_station[[j]], entry)
     
