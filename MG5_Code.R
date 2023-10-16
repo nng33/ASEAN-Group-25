@@ -2,39 +2,36 @@
 
 simulate_MG5 <- function(mf, a.rate, trf, tmf) {
         sim_duration <- 7200  # Duration in seconds of queue
-        checkin_time <- 5400  #
-        station <- matrix(0, 1, 5)
-        counter <- 0 # Count until time 7200
-        a.time <- 0  # Arrival time
-        starting_service <- numeric(0)  # Time in which the customer in queue starts to be served
-        finishing_time <- numeric(0)  # Time in which the customer is finished being served
-        while (counter < sim_duration) {
-            while (a.time < checkin_time) {
-                    TBA <- rexp(1, rate = a.rate) # Time before arrival 
-                    a.time <- a.time + TBA
-                    # Simulate service time
-                    service_time <- runif(1, min = tmf, max = tmf + trf)
-                    
-                    # time in which the customer is finished being served 
-                    # is the sum of starting service time and actual service time
-                    finishing_time <- c(finishing_time, a.time + service_time)
-                    starting_service <- c(starting_service, a.time)
-                    
-            }
-            
-            # Calculate the time each customer spends waiting in line
-            Wq <- finishing_time - starting_service
-            
-            # Return results
-            return(list(starting_service = starting_service, 
-                        finishing_time = finishing_time, 
-                        Wq = Wq))
+        checkin_time <- 5400  # The time the customer need to check-in 
+        station <- matrix(0, 2, mf)
+        a.time <- c(0)  # Arrival time
+        starting_service <- c(0)  # Time in which the customer in queue starts to be served
+        wait_time <- c(0) # Time in which the customer in queue has to wait
+        finishing_time <- c(0)  # Time in which the customer is finished being served
+        while (tail(a.time,1) < checkin_time) {
+                TBA <- rexp(1, rate = a.rate) # Time between arrival 
+                a.time <- c(a.time, a.time + TBA) # Arrival time
+                service_time <- runif(1, min = tmf, max = tmf + trf) # Simulate service time
+                first <- which(station[1,] == min(station[1,]))[1] # Station that finishes first
+                if (tail(a.time, 1) > station[1,first]) {
+                  station[2,first] <- station[2,first] + tail(a.time,1) - station[1,first]
+                  wait_time <- c(wait_time, 0)
+                } 
+                else {
+                  wait_time <- c(wait_time, station[1,first] - tail(a.time,1))
+                }
+                finishing_time <- c(finishing_time, tail(a.time,1) + tail(wait_time,1) + service_time)
+                station[1,first] <- tail(finishing_time,1)
         }
+        
+        # Return results
+        return(list(finishing_time = finishing_time, 
+                    wait_time = wait_time))
     }
 
 # Example simulation for 7200 seconds
-set.seed(123)
-sim_results <- simulate_MG5(a.rate = 0.1, service_min = 30, service_max = 70)
+set.seed(10)
+sim_results <- simulate_MG5(mf=5, a.rate=0.1, trf=30, tmf=70)
 
 # Display results
 cat("Arrival Times:", sim_results$starting_service, "\n")
