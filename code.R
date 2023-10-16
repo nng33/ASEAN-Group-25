@@ -5,7 +5,7 @@ qsim <- function(mf, mb, a.rate, trb, trf, tmb, tmf, maxb) {
   # Initialize state variables
   # Create a vector representing the number of cars waiting in each respective french queue
   french_queues <- rep(0,mf)
-  # Creates a vector corresponding to the processing time of the front car in each respective French queue
+  # Create a vector corresponding to the processing time of the front car in each respective French queue
   # Initialize this at 0 to indicate that there is no processing time elapsed for any car in the queue
   french_times <- rep(0,mf)
   # Do the same for the British queues and time 
@@ -76,8 +76,8 @@ qsim <- function(mf, mb, a.rate, trb, trf, tmb, tmf, maxb) {
     eq[t] <- sum(french_queues) * mean(french_times[french_times >= 0])
     
     # Record queue lengths
-    nf[t] <- mean(french_queues)
-    nb[t] <- mean(british_queues)
+    nf[t] <- round(mean(french_queues),0)
+    nb[t] <- round(mean(british_queues),0)
     
     
     # Update processing times
