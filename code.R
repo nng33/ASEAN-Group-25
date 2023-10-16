@@ -19,7 +19,7 @@ qsim <- function(mf, mb, a.rate, trb, trf, tmb, tmf, maxb) {
   for (t in 1:7200) {
     # Generate Poisson arrivals only within the first 90 minutes
     if (t <= 5400) {  # 60x90mins = 5400s
-      num_arrivals <- rpois(1, a.rate)
+      num_arrivals <- round(rpois(1, a.rate), 0)
       # Assign the num_arrivals to the shortest french queues using which.min 
       french_queues[which.min(french_queues)] <- french_queues[which.min(french_queues)] + num_arrivals
     }
@@ -51,19 +51,24 @@ qsim <- function(mf, mb, a.rate, trb, trf, tmb, tmf, maxb) {
       # If both conditions are true, the French queue is not empty and the front car has been processed
       if (french_queues[i] > 0 && french_times[i] == 0) {
         # store a uniformly generated processing time for each car of the front car in each respective queue
-        french_times[i] <- runif(1, tmf, tmf + trf)
+        french_times[i] <- round(runif(1, tmf, tmf + trf), 0)
       }
     }
     
     # British station  
+    # If the processing time for the front car in the British queue is less than 0 
+    # Reset the processing time to 0 and remove one car from that queue  
+    # Because it has already finished being processed 
     for (i in 1:mb) {
       if(british_times[i] < 0) {
         british_times[i] <- 0
         british_queues[i] <- british_queues[i]-1
       }
       
+    # However, if the queue is not empty and the British time is equal to zero
+    # apply a service time based on the uniform distribution 
       if (british_queues[i] > 0 && british_times[i] == 0) {
-        british_times[i] <- runif(1,tmb, tmb + trb)
+        british_times[i] <- round(runif(1,tmb, tmb + trb), 0)
       }
     }
     
@@ -93,6 +98,8 @@ qsim <- function(mf, mb, a.rate, trb, trf, tmb, tmf, maxb) {
 
 sim <- qsim(mf=5,mb=5,a.rate=.1,trb=40,trf=40,tmb=30,tmf=30,maxb=20); sim
 sim_40 <- qsim(mf=5,mb=5,a.rate=.1,trb=40,trf=40,tmb=40,tmf=30,maxb=20); sim_40
+
+tail(sim_40$nf, n = 1000)
 
 # Plot
 # Set up a 2x2 grid for plots
