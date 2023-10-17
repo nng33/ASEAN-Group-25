@@ -50,6 +50,42 @@ qsim <- function(mf, mb, a.rate, trb, trf, tmb, tmf, maxb) {
     # Reset number of arrivals for both British and French at the start of loop
     french_arrivals <- rep(0,mf)
     british_arrivals <- rep(0,mf)
+    
+    # Start from the british stations
+    for (i in 1:mb){
+      
+      # update arrivals at time t
+      
+      # arrivals depends on french_exit at t-1 and british_available at t-1
+      #### ignoring possiblity of 2 cars exiting french at the same time
+      if (sum(french_exit > 0)){
+        british_arrivals[which.min(british_queues)] <- sum(french_exit)
+      }
+    }
+      
+      
+      
+      
+      
+      # update British availability at time t
+      
+      # British station is available if:
+      # (1) number of its queue at t-1 < maximum queue length; or
+      # (2) service time at t-1 == 1 since even if queue length at t-1 is maxb,
+      #     at time t one person will exit and queue length at time t will be
+      #     maxb - 1 < maxb
+      
+      if (british_queues[i] < maxb || british_times[i] == 1){
+        british_available[i] <- 1
+      }
+      
+      # otherwise, british station is not available
+      else{
+        british_available[i] <- 0
+      }
+      
+      
+      
   
     # Generate Poisson arrivals only within the first 90 minutes
     if (t <= 5400) {  # 60x90mins = 5400s
@@ -142,6 +178,7 @@ qsim <- function(mf, mb, a.rate, trb, trf, tmb, tmf, maxb) {
       if (french_times[i] == 1 && sum(british_available) > 0){
         french_exit[i] <- 1
         
+        
         # then, transfer the (transfer must be before exit time is updated)
         # british arrival +1 at time t when french exit at t-1 is 1
         # british_arrivals[which.min(british_queues)] <- french_exit[i]
@@ -185,40 +222,6 @@ qsim <- function(mf, mb, a.rate, trb, trf, tmb, tmf, maxb) {
       # british side
       # british_arrivals already at time t
 
-     
-      
-      
-      
-      
-      
-      if (french_times[i] < 0) { # 
-        french_times[i] <- 0 # Assign french time for each station to 0 
-        # Condition checks if the total sum of all British queues is less than the total capacity 
-        if(sum(british_queues) < (mb * maxb)) {
-          # If condition met, a processed car in the french queue will move into the British queue
-          # Need to check if the french car has actually been processed
-          # Reduce the length for a selected French queue
-          french_queues[i] <- french_queues[i] - 1
-          # Store the indexes of British queues that are available 
-          available_british <- which(british_queues < maxb)
-          # Assign the processed french car to the shortest British queue
-          # Do this by applying the which.min to the available British queues 
-          # Finally, apply the index to obtain the shortest British queue
-          target_british <- available_british[which.min(british_queues[available_british])]
-          # Update the shortest British queue by 1
-          british_queues[target_british] <- british_queues[target_british] + 1
-          } 
-      }
-      
-      # Condition 1: Check whether the french queue has cars waiting and
-      # Condition 2: If the processing time for the front car in the queue has elapsed 
-      # If both conditions are true, the French queue is not empty and the front car has been processed
-      if (french_queues[i] > 0 && french_times[i] == 0) {
-        # store a uniformly generated processing time for each car of the front car in each respective queue
-        french_times[i] <- round(runif(1, tmf, tmf + trf), 0)
-      }
-    }
-    
     # British station  
     # If the processing time for the front car in the British queue is less than 0 
     # Reset the processing time to 0 and remove one car from that queue  
