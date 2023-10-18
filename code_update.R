@@ -338,12 +338,16 @@ legend("topright", legend = c("French Queue", "British Queue"), col = c("black",
 plot(1:7200, sim_40$eq, type = "l", xlab = "Time (seconds)", ylab = "Expected Queuing Time (tmb = 40)")
 
 # kind of like this code
-missing <- 0
-for (i in 1:100) {
-  qsim
-  if (sum(british_busy) > 0) {
-    missing <- missing + 1
-  }
+
+function(runs=100) {
+   missing <- 0
+   for (i in 1:runs) {
+     qsim
+   if (sum(british_queue) > 0) {
+     missing <- missing + 1
+   }
+ }
+return(prob_missing <- missing/runs)
 }
-prob_missing <- missing / 100
+
 

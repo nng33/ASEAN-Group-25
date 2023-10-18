@@ -184,12 +184,12 @@ qsim <- function(mf, mb, a.rate, trb, trf, tmb, tmf, maxb){
       }
     }
     
-    ba <- rbind(ba, british_arrivals)
-    bq <- rbind(bq, british_queues)
-    bt <- rbind(bt, british_times)
-    bb <- rbind(bb, british_busy)
-    be <- rbind(be, british_exit)
-    bav <- rbind(bav, british_available)
+    #ba <- rbind(ba, british_arrivals)
+    #bq <- rbind(bq, british_queues)
+    #bt <- rbind(bt, british_times)
+    #bb <- rbind(bb, british_busy)
+    #be <- rbind(be, british_exit)
+    #bav <- rbind(bav, british_available)
       
     ## French side
     
@@ -331,25 +331,28 @@ qsim <- function(mf, mb, a.rate, trb, trf, tmb, tmf, maxb){
         french_stuck[i] <- 0
       }
     }
-    fa <- rbind(fa, french_arrivals)
-    fq <- rbind(fq, french_queues)
-    ft <- rbind(ft, french_times)
-    fb <- rbind(fb, french_busy)
-    fe <- rbind(fe, french_exit)
-    fs <- rbind(fs, french_stuck)
+    #fa <- rbind(fa, french_arrivals)
+    #fq <- rbind(fq, french_queues)
+    #ft <- rbind(ft, french_times)
+    #fb <- rbind(fb, french_busy)
+    #fe <- rbind(fe, french_exit)
+    #fs <- rbind(fs, french_stuck)
       
     # Expected waiting time at the start of the French queue
     eq[t] <- mean(french_queues) * mean(french_times)
     
-    # Record queue lengths
+    # Record average queue lengths
     nf[t] <- mean(french_queues)
     nb[t] <- mean(british_queues)
   }
   
-  return(list(nf = nf, nb = nb, eq = eq, 
-              ba = ba, bq = bq, bt = bt, bb = bb, be = be, bav = bav,
-              fa = fa, fq = fq, ft = ft, fb = fb, fe = fe, fs = fs))
+  #return(list(nf = nf, nb = nb, eq = eq, 
+              #ba = ba, bq = bq, bt = bt, bb = bb, be = be, bav = bav,
+              #fa = fa, fq = fq, ft = ft, fb = fb, fe = fe, fs = fs))
+  
+  assign("busy", british_busy, envir = .GlobalEnv)  
 }
+
 
 sim <- qsim(mf=5,mb=5,a.rate=.1,trb=40,trf=40,tmb=30,tmf=30,maxb=20)
 
@@ -366,7 +369,7 @@ par(mfrow = c(2, 2))
 # Plot 1: French and British queue lengths over time
 plot(1:7200, sim$nf, type = "l", xlab = "Time (seconds)", ylab = "French Queue Length")
 lines(1:7200, sim$nb, col = "red")
-# legend("topright", legend = c("French Queue", "British Queue"), col = c("black", "red"), lty = 1)
+legend("topright", legend = c("French Queue", "British Queue"), col = c("black", "red"), lty = 1)
 
 # Plot 2: Expected queuing time over time
 plot(1:7200, sim$eq, type = "l", xlab = "Time (seconds)", ylab = "Expected Queuing Time")
@@ -374,8 +377,16 @@ plot(1:7200, sim$eq, type = "l", xlab = "Time (seconds)", ylab = "Expected Queui
 # Plot 3: French and British queue lengths over time
 plot(1:7200, sim_40$nf, type = "l", xlab = "Time (seconds)", ylab = "French Queue Length")
 lines(1:7200, sim_40$nb, col = "red")
-# legend("topright", legend = c("French Queue", "British Queue"), col = c("black", "red"), lty = 1)
+legend("topright", legend = c("French Queue", "British Queue"), col = c("black", "red"), lty = 1)
 
 # Plot 4: Expected queuing time over time
 plot(1:7200, sim_40$eq, type = "l", xlab = "Time (seconds)", ylab = "Expected Queuing Time")
+
+missing <- 0
+for (i in 1:100) {
+  qsim(mf=5,mb=5,a.rate=.1,trb=40,trf=40,tmb=40,tmf=30,maxb=20)
+    if (sum(busy) > 0) {
+        missing <- missing + 1
+  }
+}
 
