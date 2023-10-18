@@ -103,8 +103,15 @@ qsim <- function(mf, mb, a.rate, trb, trf, tmb, tmf, maxb) {
       
       # Assign the num_arrivals to the shortest french queues using which.min
       # update to arrival number at time t
-      french_arrivals[which.min(french_queues)] <- num_arrivals
-      # french_queues[which.min(french_queues)] <- french_queues[which.min(french_queues)] + french_arrivals
+      #french_arrivals[which.min(french_queues)] <- num_arrivals
+      
+      # Which station should be assigned for the new car
+      if (sum(french_busy) < 5) {
+        french_arrivals[which.min(french_busy)] <- num_arrivals
+      }
+      else {
+        french_arrivals[which.min(french_queues)] <- num_arrivals
+      }
       
     }
     
@@ -244,10 +251,23 @@ qsim <- function(mf, mb, a.rate, trb, trf, tmb, tmf, maxb) {
       else{
         french_stuck <- 0
       }
+      
+      # Which station should be assigned for the cars that pass through the french station
+      if (sum(british_busy) < 5) {
+        british_arrivals[which.min(british_busy)] <- french_exit[i]
+      }
+      else {
+        british_arrivals[which.min(british_queues)] <- french_exit[i]
+      }
+      
     }
     
     # Now handling the cars that enter the British Station
+    
+      
+    
     for (j in 1:mb) {
+      
       # Update British busy vector
       if (british_times[j] > 1 || british_queues[j] > 0 || british_arrivals[j] == 1) {
         british_busy[j] <- 1
