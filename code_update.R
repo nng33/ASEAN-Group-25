@@ -321,21 +321,21 @@ tail(sim_40$nf, n = 1000)
 # Set up a 2x2 grid for plots
 par(mfrow = c(2, 2))  
 
-# Plot 1: French and British queue lengths over time
-plot(1:7200, sim$nf, type = "l", xlab = "Time (seconds)", ylab = "French Queue Length")
+# Plot 1: French and British queue lengths over time with default simulation parameters
+plot(1:7200, sim$nf, type = "l", xlab = "Time (seconds)", ylab = "Queue Length (default case)")
 lines(1:7200, sim$nb, col = "red")
-# legend("topright", legend = c("French Queue", "British Queue"), col = c("black", "red"), lty = 1)
+legend("topright", legend = c("French Queue", "British Queue"), col = c("black", "red"), lty = 1)
 
-# Plot 2: Expected queuing time over time
-plot(1:7200, sim$eq, type = "l", xlab = "Time (seconds)", ylab = "Expected Queuing Time")
+# Plot 2: Expected queuing time over time with default simulation parameters
+plot(1:7200, sim$eq, type = "l", xlab = "Time (seconds)", ylab = "Expected Queuing Time (default case)")
 
-# Plot 3: French and British queue lengths over time
-plot(1:7200, sim_40$nf, type = "l", xlab = "Time (seconds)", ylab = "French Queue Length")
+# Plot 3: French and British queue lengths over time when tmb = 40
+plot(1:7200, sim_40$nf, type = "l", xlab = "Time (seconds)", ylab = "Queue Length (tmb = 40)")
 lines(1:7200, sim_40$nb, col = "red")
-# legend("topright", legend = c("French Queue", "British Queue"), col = c("black", "red"), lty = 1)
+legend("topright", legend = c("French Queue", "British Queue"), col = c("black", "red"), lty = 1)
 
-# Plot 4: Expected queuing time over time
-plot(1:7200, sim_40$eq, type = "l", xlab = "Time (seconds)", ylab = "Expected Queuing Time")
+# Plot 4: Expected queuing time over time when tmb = 40
+plot(1:7200, sim_40$eq, type = "l", xlab = "Time (seconds)", ylab = "Expected Queuing Time (tmb = 40)")
 
 # kind of like this code
 missing <- 0
