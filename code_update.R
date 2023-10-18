@@ -213,10 +213,32 @@ qsim <- function(mf, mb, a.rate, trb, trf, tmb, tmf, maxb) {
       # (2) else if a car is stuck at the beginning of time t and a space in the
       #     British stations frees up at the end of time t, then the car is 
       #     no longer stuck (0) and may exit (assign 1 to french_exit)
-      else if (french_times[i] == 0 && french_busy[i] == 1 && sum(british_available) > 0){
+      ###else if (french_times[i] == 0 && french_busy[i] == 1 && sum(british_available) > 0){
+      #  french_stuck[i] <- 0
+      #  french_exit[i] <- 1
+      #}
+      else if (french_times[i] == 0 && french_busy[i] == 1 && sum(british_available) > 0 && (mb*maxb-sum(british_queues)) >= sum(french_stuck)) {
         french_stuck[i] <- 0
         french_exit[i] <- 1
       }
+      
+      # (3) else if a car is stuck at the beginning of time t but the number of spaces in the British stations
+      #     is smaller than the number of cars being stuck), then some cars is 
+      #     no longer stuck (0) and may exit (assign 1 to french_exit)
+      #     other cars that can't move to the British stations are stuck again (going back to the condition(1)) 
+      
+      else if (french_times[i] == 0 && french_busy[i] == 1 && sum(british_available) > 0 && (mb*maxb-sum(british_queues)) < sum(french_stuck)) {
+        if (british_queues[which.min(british_queues)] == maxb-1) {
+          british_available[which.min(british_queues)] <- 0
+          british_queues[which.min(british_queues)] <- british_queues[which.min(british_queues)] + 1
+        }
+        else {
+          british_queues[which.min(british_queues)] <- british_queues[which.min(british_queues)] + 1
+        }
+        french_stuck[i] <- 0
+        french_exit[i] <- 1
+      }
+      
       
       # in all other cases, no car is stuck
       else{
@@ -314,4 +336,14 @@ lines(1:7200, sim_40$nb, col = "red")
 
 # Plot 4: Expected queuing time over time
 plot(1:7200, sim_40$eq, type = "l", xlab = "Time (seconds)", ylab = "Expected Queuing Time")
+
+# kind of like this code
+missing <- 0
+for (i in 1:100) {
+  qsim
+  if (sum(british_busy) > 0) {
+    missing <- missing + 1
+  }
+}
+prob_missing <- missing / 100
 
