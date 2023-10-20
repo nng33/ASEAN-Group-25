@@ -476,7 +476,7 @@ sim_40 <- qsim(tmb = 40)
 par(mfrow = c(2, 2))  
 
 # Plot 1: Average French and British queue lengths over time when tmb = 30
-plot(1:7200, sim$nf, type = "l", xlab = "Time (seconds)", ylab = "Queue Length", 
+plot(1:7200, sim$nf, type = "l", xlab = "Time (seconds)", ylab = "Average Queue Length", 
      ylim = c(0,20))
 lines(1:7200, sim$nb, col = "red")
 title("Average Queue Length When tmb = 30")
@@ -490,7 +490,7 @@ title("Expected Queueing Time When tmb = 30")
 
 # Plot 3: Average French and British queue lengths over time when tmb = 40
 plot(1:7200, sim_40$nf, type = "l", xlab = "Time (seconds)", 
-     ylab = "Queue Length", ylim = c(0,20))
+     ylab = "Average Queue Length", ylim = c(0,20))
 lines(1:7200, sim_40$nb, col = "red")
 title("Average Queue Length When tmb = 40")
 legend("topleft", legend = c("French Queue", "British Queue"), 
@@ -509,21 +509,16 @@ title("Expected Queueing Time When tmb = 40")
 # Initialize a variable that counts the number of times in each simulation that 
 # at least one car is still in the queue by the end of the simulation
 missing <- 0
-missing_2 <- 0
 
 # Simulation time 
 sim_t <- 7200
 
-# run the each simulation 100 times and record the last average French and British queue lengths
+# run simulation 100 times
 for (i in 1:100) {
   
   sim_prob <- qsim(tmb = 40) # slight delay case
-  last_nf <- sim_prob$nf[sim_t] # average french queue length at t=7200
-  last_nb <- sim_prob$nb[sim_t] # average british queue length at t=7200
-  
-  sim_prob2 <- qsim(tmb = 30) # matching rate case
-  last_nf2 <- sim_prob2$nf[sim_t]
-  last_nb2 <- sim_prob2$nb[sim_t]
+  last_nf <- sim_prob$nf[sim_t] # average French queue length at t=7200
+  last_nb <- sim_prob$nb[sim_t] # average British queue length at t=7200
   
   # non-zero average of the queue lengths indicate that there are still cars
   # remaining in the queue.
@@ -534,19 +529,12 @@ for (i in 1:100) {
     missing <- missing + 1
   }
   
-  if (sum(last_nf2, last_nb2) != 0) {
-    missing_2 <- missing_2 + 1
-  }
-  
 }
 
 # Calculate the empirical probability that at least one car miss the ferry 
 # and print out the result
 prob <- missing / 100
 cat("The probability of at least one car missing the ferry departure when tmb = 40 is ", prob, ".", sep = "")
-
-prob2 <- missing_2 / 100
-cat("The probability of at least one car missing the ferry departure when tmb = 30 is ", prob2, ".", sep = "")
 
 
 # Findings:
