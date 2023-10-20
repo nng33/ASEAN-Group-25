@@ -482,7 +482,8 @@ plot(1:7200, sim_40$eq, type = "l", xlab = "Time (seconds)", ylab = "Expected Qu
 title("Expected Queueing Time When tmb = 40")
 
 
-# Estimation of the probability that at least one car miss the ferry departure
+# Estimation of the probability that at least one car miss the ferry departure 
+# if there is a slight delay in the British processing time.
 
 # Initialize a variable that counts the number of times in each simulation that 
 # at least one car is still in the queue by the end of the simulation
@@ -502,7 +503,7 @@ for (i in 1:100) {
   # non-zero average of the queue lengths indicate that there are still cars
   # remaining in the queue.
   # Therefore, if the sum of the averages are not 0
-  if (sum(last_nf,last_nb) != 0) {
+  if (sum(last_nf, last_nb) != 0) {
     # there is at least one car stuck in the queue at the end of the 2-hour 
     # simulation period
     missing <- missing + 1
@@ -513,6 +514,21 @@ for (i in 1:100) {
 # and print out the result
 prob <- missing / 100
 cat("The probability of at least one car missing the ferry departure is ", prob, ".", sep = "")
+
+
+# Estimation of the probability if tmb = 30 (almost the same as the case of tmb = 40)
+missing_2 <- 0
+for (i in 1:100) {
+  sim_prob2 <- qsim(tmb = 30)
+  last_nf2 <- sim_prob2$nf[sim_t]
+  last_nb2 <- sim_prob2$nb[sim_t]
+  
+  if (sum(last_nf2, last_nb2) != 0) {
+    missing_2 <- missing_2 + 1
+  }
+}
+prob2 <- missing_2 / 100
+cat("The probability of at least one car missing the ferry departure is ", prob2, ".", sep = "")
 
 
 # Findings:
@@ -535,4 +551,3 @@ cat("The probability of at least one car missing the ferry departure is ", prob,
 # As a result, the probability that at least one car miss the ferry when the 
 # average rate of processing British passports falls behind the arrival rate 
 # into the French queues will be greater than if both rates are the same. 
-
