@@ -476,7 +476,7 @@ sim_40 <- qsim(tmb = 40)
 par(mfrow = c(2, 2))  
 
 # Plot 1: Average French and British queue lengths over time when tmb = 30
-plot(1:7200, sim$nf, type = "l", xlab = "Time (seconds)", ylab = "Average Queue Length", 
+plot(1:7200, sim$nf, type = "l", xlab = "Time (seconds)", ylab = "Average Queue Length (people)", 
      ylim = c(0,20))
 lines(1:7200, sim$nb, col = "red")
 title("Average Queue Length When tmb = 30")
@@ -485,12 +485,12 @@ legend("topleft", legend = c("French Queue", "British Queue"),
 
 # Plot 2: Expected queuing time over time when tmb = 30
 plot(1:7200, sim$eq, type = "l", xlab = "Time (seconds)", 
-     ylab = "Expected Queuing Time", ylim = c(0,ceiling(max(sim_40$eq))))
+     ylab = "Expected Queuing Time (seconds)", ylim = c(0,ceiling(max(sim_40$eq))))
 title("Expected Queueing Time When tmb = 30")
 
 # Plot 3: Average French and British queue lengths over time when tmb = 40
-plot(1:7200, sim_40$nf, type = "l", xlab = "Time (seconds)", 
-     ylab = "Average Queue Length", ylim = c(0,20))
+plot(1:7200, sim_40$nf, type = "l", xlab = "Time (seconds)", ylab = "Average Queue Length (people)", 
+     ylim = c(0,20))
 lines(1:7200, sim_40$nb, col = "red")
 title("Average Queue Length When tmb = 40")
 legend("topleft", legend = c("French Queue", "British Queue"), 
@@ -498,7 +498,7 @@ legend("topleft", legend = c("French Queue", "British Queue"),
 
 # Plot 4: Expected queuing time over time when tmb = 40
 plot(1:7200, sim_40$eq, type = "l", xlab = "Time (seconds)", 
-     ylab = "Expected Queuing Time", ylim = c(0,ceiling(max(sim_40$eq))))
+     ylab = "Expected Queuing Time (seconds)", ylim = c(0,ceiling(max(sim_40$eq))))
 title("Expected Queueing Time When tmb = 40")
 
 
