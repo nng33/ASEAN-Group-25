@@ -12,6 +12,7 @@
 
 ##################################################################################################
 
+
 # This program simulates queuing system of French and British passport control
 # station at a French ferry terminal. Cars first have to go through the French
 # station followed by British station. Simulation runs for 2 hours (7200 seconds) 
@@ -29,12 +30,14 @@
 # by running the simulation 100 times and considering the average French and 
 # British queue length at the last second.
 
+
 ###############################################################################################
+
 
 # The function qsim() simulates the French and British queuing system.
 # qsim() takes on 8 inputs:
-# (1) mf is number of French passport control stations (default: 5)
-# (2) mb is number of British passport control stations (default: 5)
+# (1) mf is the number of French passport control stations (default: 5)     
+# (2) mb is the number of British passport control stations (default: 5)    
 # (3) a.rate is the probability of a car arriving each second (default: 0.1)
 # (4) trb is a constant such that the British station processing time follows 
 #     Uniform(tmb, tmb+trb) (default: 40)
@@ -70,8 +73,8 @@ qsim <- function(mf=5,mb=5,a.rate=.1,trb=40,trf=40,tmb=30,tmf=30,maxb=20){
   # French station is busy (1) or not (0) at the beginning of time t
   french_busy <- rep(0,mf)
 
-  # each column of french_exit indicates whether there's an exit (1) or not (0)
-  # at each station at the end of time t/beginning of time t+1 
+  # each column of french_exit indicates whether the car exit (1) or not (0)
+  # at each French station at the end of time t/beginning of time t+1 
   french_exit <- rep(0,mf)
 
   # each column of french_stuck indicates whether there's a car stuck at 
@@ -91,9 +94,9 @@ qsim <- function(mf=5,mb=5,a.rate=.1,trb=40,trf=40,tmb=30,tmf=30,maxb=20){
   british_exit <- rep(0,mb)
 
   
-  # each column of british_available indicates whether each station is 
-  # available (1) or not (0) at the end of time t/beginning of t+1 
-  # for containing a car arriving from the French exit
+  # each column of british_available indicates whether each British station is     
+  # available (1) or not (0) at the end of time t/beginning of time t+1      
+  # for containing a car arriving from the French station 
   british_available <- rep(1,mb)
 
   
@@ -107,18 +110,18 @@ qsim <- function(mf=5,mb=5,a.rate=.1,trb=40,trf=40,tmb=30,tmf=30,maxb=20){
   
   # iterate over the entire 2 hour (7200 seconds) period
   for (t in 1:7200) {
-    # Reset number of arrivals for both British and French at the start of the loop
+    # Reset number of arrivals for both British and French stations at the start of the loop    
     french_arrivals <- rep(0,mf)
     british_arrivals <- rep(0,mf)
     
     # Start from the British stations
     
     # update british_arrivals at time t
-    # arrivals depends on french_exit at t-1
-    # if a car manages to exit at t-1, it already checked the availability of 
+    # arrivals depends on french_exit at time t-1     
+    # if a car manages to exit at time t-1, it already checked the availability of    
     # British stations
     
-    # number of arrivals at the British station is the total number of cars
+    # the number of arrivals at the British station is the total number of cars    
     # exiting the French station
     british_num_arrivals <- sum(french_exit)
     
@@ -131,11 +134,10 @@ qsim <- function(mf=5,mb=5,a.rate=.1,trb=40,trf=40,tmb=30,tmf=30,maxb=20){
       # iterate over each arriving car
       for (i in 1:british_num_arrivals){
         
-        
         # If there are any stations that are not busy
         if (num_british_busy < 5) {
           # go to the station that is not busy because
-          # if station is not busy at t-1, it is available at t
+          # if station is not busy at time t-1, it is available at time t
           
           # obtain the index of the target station:
           # get the index of the station that is not busy (the station will have  
@@ -148,7 +150,7 @@ qsim <- function(mf=5,mb=5,a.rate=.1,trb=40,trf=40,tmb=30,tmf=30,maxb=20){
           
           
           # remove the chosen station from choices of available station
-          # because it will not have the minimum queue anymore
+          # because it is busy now
           available_station <- available_station[!available_station == go_here]
           
           # the chosen station is now busy to serve the new car, so add
@@ -162,7 +164,7 @@ qsim <- function(mf=5,mb=5,a.rate=.1,trb=40,trf=40,tmb=30,tmf=30,maxb=20){
         
         # else, when all stations are busy
         else{
-          # only consider the minimum queue length at time t-1 of stations that 
+          # only consider the minimum queue length at time t-1 of British stations that 
           # are available
  
           # which available station has the minimum queue?
@@ -175,7 +177,7 @@ qsim <- function(mf=5,mb=5,a.rate=.1,trb=40,trf=40,tmb=30,tmf=30,maxb=20){
           # enter one available station with minimum queue 
           british_arrivals[go_here] <- 1
           
-          # remove the chosen station from the choices of available station
+          # remove the chosen station from the choices of the available station
           # because that station will not have the minimum queue anymore
           available_station <- available_station[!available_station == go_here]
         }
@@ -185,9 +187,9 @@ qsim <- function(mf=5,mb=5,a.rate=.1,trb=40,trf=40,tmb=30,tmf=30,maxb=20){
     # update British station busy state to values at time t
     
     # a British station is busy at time t if:
-    # (1) the service time left at t-1 is more than 1 second 
+    # (1) the service time left at time t-1 is more than 1 second 
     #     (i.e, still need to serve at time t)
-    # (2) or there's a customer waiting in queue at t-1 ready to be served
+    # (2) or there's a customer waiting in queue at time t-1 ready to be served
     # (3) or a customer arrives exactly at time t
     for (i in 1:mb){
       if (british_times[i] > 1 || british_queues[i] > 0 || british_arrivals[i] == 1){
@@ -201,10 +203,9 @@ qsim <- function(mf=5,mb=5,a.rate=.1,trb=40,trf=40,tmb=30,tmf=30,maxb=20){
     
     # update British queues length to values at time t
     for (i in 1:mb){
-      
       # a British station's queue length changes when:
-      # (1) if a station is busy at time t-1 (service time at t-1 > 1) 
-      #     then add number of arrivals at time t to the queue's length at time t-1.
+      # (1) if a station is busy at time t-1 (service time at time t-1 > 1) 
+      #     then add the number of arrivals at time t to the queue length at time t-1
       # notice that these conditions allow a car who arrives exactly at time t
       # without any queue to go straight into the station without having to queue
       if (british_times[i] > 1){
@@ -225,7 +226,7 @@ qsim <- function(mf=5,mb=5,a.rate=.1,trb=40,trf=40,tmb=30,tmf=30,maxb=20){
       # update British service time
       
       # a British station's service time changes when:
-      # (1) if the service time at t-1 > 1, then reduce that by one since
+      # (1) if the service time at time t-1 > 1, then reduce that by one since
       #     time has progressed by one second after each iteration
       if (british_times[i] > 1){
         british_times[i] <- british_times[i] - 1
@@ -263,12 +264,11 @@ qsim <- function(mf=5,mb=5,a.rate=.1,trb=40,trf=40,tmb=30,tmf=30,maxb=20){
       }
     }
     
-    
     # update British availability at time t
     for (i in 1:mb){
-      # British station is available if:
-      # (1) number of its queue at t-1 < maximum queue length; or
-      # (2) service time at t-1 == 1 since even if queue length at t-1 is maxb,
+      # a British station is available if:
+      # (1) number of its queue at time t-1 < maximum queue length; or
+      # (2) service time at time t-1 == 1 since even if queue length at time t-1 is maxb,
       #     at time t one person will exit and queue length at time t will be
       #     maxb - 1 < maxb
       
@@ -291,9 +291,8 @@ qsim <- function(mf=5,mb=5,a.rate=.1,trb=40,trf=40,tmb=30,tmf=30,maxb=20){
 
     ## French side
     
-    # Generate Poisson arrivals only within the first 90 minutes
-    if (t <= 5400){  # 60x90mins = 5400s
-      
+    # Generate arrivals only within the first 90 minutes
+    if (t <= 5400){  # 60s x 90mins = 5400s
       # the probability that a car arrives is a.rate
       # Let U be a random variable following Uniform(0,1)
       # Then, the Pr(U < a.rate) = a.rate
@@ -315,7 +314,7 @@ qsim <- function(mf=5,mb=5,a.rate=.1,trb=40,trf=40,tmb=30,tmf=30,maxb=20){
       
       # otherwise, pick the station with the smallest queue length
       # Assume that the arriving car does not know how many seconds
-      # the previous car has left in a station
+      # the previous cars have left in a station
       else {
         french_arrivals[which.min(french_queues)] <- num_arrivals
       }
@@ -324,7 +323,7 @@ qsim <- function(mf=5,mb=5,a.rate=.1,trb=40,trf=40,tmb=30,tmf=30,maxb=20){
     # update French station busy state to values at time t
     for (i in 1:mf) {
       # a French station is busy at time t if:
-      # (1) the service time left at t-1 is more than 1 second 
+      # (1) the service time left at time t-1 is more than 1 second 
       #     (i.e, still need to serve at time t); or
       # (2) there's a customer waiting in queue at time t-1 ready to be served at time t; or
       # (3) a customer arrives exactly at time t; or
@@ -341,11 +340,10 @@ qsim <- function(mf=5,mb=5,a.rate=.1,trb=40,trf=40,tmb=30,tmf=30,maxb=20){
     
     # update French queues lengths to values at time t
     for (i in 1:mf){
-      
       # a French station's queue length changes when:
-      # (1) if a station is busy at time t-1 (service time at t-1 > 1 
+      # (1) if a station is busy at time t-1 (service time at time t-1 > 1 
       #     or a car is stuck inside) then add number of arrivals at time t
-      #     to the queue's length at time t-1.
+      #     to the queue length at time t-1.
       # notice that these conditions allow a car who arrives exactly at time t
       # without any queue to go straight into the station without having to queue
       if (french_times[i] > 1 || french_stuck[i] == 1){
@@ -390,7 +388,7 @@ qsim <- function(mf=5,mb=5,a.rate=.1,trb=40,trf=40,tmb=30,tmf=30,maxb=20){
     # update French exit and stuck state at time t
     
     for (i in 1:mf){
-      # (1) if its service time at time t == 1 it implies that its service 
+      # (1) if its service time at time t == 1, it implies that its service 
       #     will be finished at the end of time t and there is an available 
       #     spot at the British stations, then the car can exit
       
@@ -402,7 +400,7 @@ qsim <- function(mf=5,mb=5,a.rate=.1,trb=40,trf=40,tmb=30,tmf=30,maxb=20){
       # (2) else if service time at time t == 1 but there is no free space at the
       #     British station, the car doesn't exit (assign 0 to french_exit) but 
       #     it gets stuck for the first time (assign 1 to french_Stuck)
-      else if(french_times[i] == 1 && num_available_station == 0){
+      else if (french_times[i] == 1 && num_available_station == 0){
         french_exit[i] <- 0
         french_stuck[i] <- 1
       }
@@ -441,7 +439,7 @@ qsim <- function(mf=5,mb=5,a.rate=.1,trb=40,trf=40,tmb=30,tmf=30,maxb=20){
     # nb is the average queue lengths for the British stations
     nb[t] <- mean(british_queues)
     
-    # Expected waiting time at the start of the French queue
+    # eq is the expected waiting time at the start of the French queue
     eq[t] <- mean(french_queues) * mean(french_times) + mean(british_queues) * mean(british_times)
     
   }
@@ -450,7 +448,9 @@ qsim <- function(mf=5,mb=5,a.rate=.1,trb=40,trf=40,tmb=30,tmf=30,maxb=20){
   return(list(nf = nf, nb = nb, eq = eq))
 }
 
+
 ####################################################################################################################
+
 
 # simulate queue with default parameter
 sim <- qsim()
@@ -493,7 +493,7 @@ sim_t <- 7200
 
 # run the simulation 100 times
 for (i in 1:100) {
-  # Assign the average French and British Queue lengths at the end of the 
+  # Assign the average French and British queue lengths at the end of the 
   # simulation to last_nf and last_nb, respectively
   sim_prob <- qsim(tmb = 40)
   last_nf <- sim_prob$nf[sim_t]
@@ -509,9 +509,9 @@ for (i in 1:100) {
   }
 }
 
-# Calculate the empirical probability that at least one car misses the ferry 
+# Calculate the empirical probability that at least one car miss the ferry 
 # and print out the result
-prob <- missing/100
+prob <- missing / 100
 cat("The probability of at least one car missing the ferry departure is ", prob, ".", sep = "")
 
 
@@ -532,7 +532,7 @@ cat("The probability of at least one car missing the ferry departure is ", prob,
 # the British stations start reaching their maximum capacity i.e., when cars
 # starts getting stuck at the French station which would impact the French queue length. 
 
-# As a result, the probability that at least one car misses the ferry when the 
+# As a result, the probability that at least one car miss the ferry when the 
 # average rate of processing British passports falls behind the arrival rate 
 # into the French queues will be greater than if both rates are the same. 
 
