@@ -17,30 +17,22 @@
 ################################################################################
 
 
-#
+# Function initializes the network, which includes the weights, biases and nodes
 netup <- function(d){
-  h <- list()
-  W <- list()
-  b <- list()
+
+  W <- lapply(seq_along(d)[-length(d)], function(i) {
+        matrix(runif(d[i] * d[i+1], 0, 0.2), d[i], d[i+1])
+  })
   
-  for (i in 1:length(d)){
-    vec <- rep(c(0), times = d[i])
-    h[[i]] <- vec
-  }
+  h <- lapply(seq_along(d), function(j) {
+        rep(0, times = d[j])
+  })
   
-  for (j in 1:length(d)-1){
-    W[[j]] <- matrix(runif(d[j] * d[j+1], min = 0, max = 0.2), 
-                     d[j], d[j+1])
-  }
-  
-  for (k in 1:length(d)){
-    vec <- rep(c(1), times = length(d[i]))
-    h[[i]] <- vec
-  }
-  
+  b <- lapply(seq_along(d)[-length(d)], function(z) {
+        runif(d[z], 0, 0.2)
+  })
+
   return(list(h = h, W = W, b = b))
 }
 
-# Test case for netup
-d <- c(4,8,7,3)
-netup(d)
+
