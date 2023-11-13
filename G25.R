@@ -18,7 +18,7 @@
 
 
 # Function initializes the network, which includes the weights, biases and nodes
-netup <- function(d){
+netup <- function(d) {
 
   W <- lapply(seq_along(d)[-length(d)], function(i) {
         matrix(runif(d[i] * d[i+1], 0, 0.2), d[i], d[i+1])
@@ -35,5 +35,4 @@ netup <- function(d){
   nn <- list(h = h, W = W, b = b)
   return(nn)
 }
-
 
