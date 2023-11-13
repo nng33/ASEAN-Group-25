@@ -17,7 +17,8 @@
 ################################################################################
 
 
-# Function initializes the network, which includes the weights, biases and nodes
+# The function netup() is for initializing the network, 
+# which includes the weights, biases and nodes
 netup <- function(d) {
 
   W <- lapply(seq_along(d)[-length(d)], function(i) {
@@ -37,7 +38,8 @@ netup <- function(d) {
 }
 
 
-#
+# The function forward() is for computing the every node value except on the 
+# first layer
 forward <- function(nn, inp){
   nnh <- nn$h
   nnW <- nn$W
@@ -66,17 +68,28 @@ forward <- function(nn, inp){
   return(nn)
 }
 
-inp <- c(1,2,3,4)
 
-#
+# The function backward() is for computing the derivatives of the loss
 backward <- function(nn, k){
+  nnh <- nn$h
+  nnW <- nn$W
+  nnb <- nn$b
+  
+  # compute the derivative of the loss for k_i w.r.t. h^L_j
+  p_k <- exp(nnh[[length(nnh)]])[k] / sum(nnh[[length(nnh)]])  #### wrong
   
   
+  # compute the derivatives of the loss w.r.t. all the other h^l_j
+  # back-propagation
+  
+  
+  nn <- list(h = nnh, W = nnW, b = nnb, dh = dh, dW = dW, db = db)
+  return(nn)
 }
 
 
 
-#
+# The function train() is for training the network
 train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
   
   
