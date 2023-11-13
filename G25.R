@@ -32,7 +32,8 @@ netup <- function(d){
         runif(d[z], 0, 0.2)
   })
 
-  return(list(h = h, W = W, b = b))
+  nn <- list(h = h, W = W, b = b)
+  return(nn)
 }
 
 
