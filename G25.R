@@ -22,7 +22,7 @@
 netup <- function(d) {
 
   W <- lapply(seq_along(d)[-length(d)], function(i) {
-        matrix(runif(d[i] * d[i+1], 0, 0.2), d[i], d[i+1])
+        matrix(runif(d[i] * d[i+1], 0, 0.2), d[i+1], d[i])
   })
   
   h <- lapply(seq_along(d), function(j) {
