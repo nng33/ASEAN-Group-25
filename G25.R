@@ -43,11 +43,6 @@ ReLU <- function(h_j) {
       return(max(0, h_j))
 }
 
-# h represents the output value in the last layer of the respective class k
-softmax <- function(h_final) {
-      # h_final is a list of raw values from the output node
-      return(exp(h_final)/sum(exp(h_final)))
-}
 
 # The function forward() is for computing the every node value except on the 
 # first layer
@@ -81,6 +76,13 @@ forward <- function(nn, inp){
 }
 
 
+# h represents the output value in the last layer of the respective class k
+softmax <- function(h_final) {
+  # h_final is a list of raw values from the output node
+  return(exp(h_final)/sum(exp(h_final)))
+}
+
+
 # The function backward() is for computing the derivatives of the loss
 backward <- function(nn, k){
   nnh <- nn$h
@@ -88,8 +90,15 @@ backward <- function(nn, k){
   nnb <- nn$b
   
   # compute the derivative of the loss for k_i w.r.t. h^L_j
-  p_k <- exp(nnh[[length(nnh)]])[k] / sum(nnh[[length(nnh)]])  #### wrong
-  
+  loss <- c(rep(0,length(nnh)))
+  for (i in 1:length(nnh)){
+    if (i == k){
+      loss[i] <- softmax(nnh)[[i]] - 1
+    }
+    else{
+      loss[i] <- softmax(nnh)[[i]]
+    }
+  }
   
   # compute the derivatives of the loss w.r.t. all the other h^l_j
   # back-propagation
