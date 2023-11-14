@@ -41,6 +41,8 @@ netup <- function(d) {
   return(nn)
 }
 
+
+# The function ReLU() is for the ReLU transform
 # h_j is the list of node values to apply the activation function to
 ReLU <- function(h_j) {
       # Applied to each element in the list 
@@ -63,12 +65,14 @@ forward <- function(nn, inp){
 }
 
 
+# The function softmax() is for computing the derivative of the loss
 # h_final represents the output values in the last layer
 # class argument represents the class that the softmax function is applied to
 softmax <- function(class, h_final) {
   # h_final is a list of raw values from the output node
   return(exp(class)/sum(exp(h_final)))
 }
+
 
 # The function backward() is for computing the derivatives of the loss
 backward <- function(nn, k){
@@ -119,10 +123,18 @@ backward <- function(nn, k){
 }
 
 
-
 # The function train() is for training the network
 train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
+  nn <- netup(d)
   
+  for (i in 1:nstep){
+    nn <- forward(nn, inp)
+    nn <- backward(nn, k)    #### this k should be changed
+    nn$W <- nn$W - (eta * nn$dW)
+    nn$b <- nn$b - (eta * nn$db)
+  }
   
+  nn <- forward(nn, inp)
   
+  return(nn)
 }
