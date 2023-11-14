@@ -37,18 +37,30 @@ netup <- function(d) {
   return(nn)
 }
 
+# h_j is the list of node values to apply the activation function to
+ReLU <- function(h_j) {
+      # Applied to each element in the list 
+      return(max(0, h_j))
+}
+
+# h represents the output value in the last layer of the respective class k
+softmax <- function(h_final) {
+      # h_final is a list of raw values from the output node
+      return(exp(h_final)/sum(exp(h_final)))
+}
 
 # The function forward() is for computing the every node value except on the 
 # first layer
 forward <- function(nn, inp){
-  nnh <- nn$h
+  nnh <- nn$h 
+  nnh[[1]] <- inp 
   nnW <- nn$W
   nnb <- nn$b
   
   # put the input values in the node of the first layer
-  for (i in 1:length(nnh[[1]])){
-    nnh[[1]][i] <- inp[i]
-  }
+  # for (i in 1:length(nnh[[1]])){
+  #   nnh[[1]][i] <- inp[i]
+  # }
   
   # compute the remaining node values using the ReLU transform
   for (j in 1:length(nnW)){
