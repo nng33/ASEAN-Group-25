@@ -63,12 +63,12 @@ forward <- function(nn, inp){
 }
 
 
-# h represents the output value in the last layer of the respective class k
-softmax <- function(h_final) {
+# h_final represents the output values in the last layer
+# class argument represents the class that the softmax function is applied to
+softmax <- function(class, h_final) {
   # h_final is a list of raw values from the output node
-  return(exp(h_final)/sum(exp(h_final)))
+  return(exp(class)/sum(exp(h_final)))
 }
-
 
 # The function backward() is for computing the derivatives of the loss
 backward <- function(nn, k){
@@ -76,19 +76,32 @@ backward <- function(nn, k){
   dh <- nn$h
   db <- nn$b
   
-  # compute the derivative of the loss for k_i w.r.t. h^L_j
-  d_loss <- c(rep(0,length(nn$h)))
-  for (i in 1:length(nn$h)){
-    if (i == k){
-          d_loss[[i]] <- softmax(nn$h)[[i]] - 1
-    }
-    else{
-          d_loss[i] <- softmax(nn$h)[[i]]
-    }
+  # Compute the derivative of the loss for k_i w.r.t. h^L_j
+  # Obtain the length of the last element in h of list nn
+  nn_len <- length(nn$h[[length(nn$h)]])
+  d_loss <- c(rep(0,nn_len))
+  # Iterate through the values in the final node
+  for (i in 1:nn_len){
+        if (i == k){
+              d_loss[i] <- softmax(nn$h[[nn_len]][i], nn$h[[length(nn$h)]]) - 1
+        }
+        else{
+              d_loss[i] <- softmax(nn$h[[nn_len]][i], nn$h[[length(nn$h)]])
+        }
   }
   
-  dh[[length(dh)]] = softmax(nn$h)
-  dh[[length(dh)]][k] = dh[[length(dh)]][k] - 1
+  # d_loss <- c(rep(0,length(nn$h)))
+  # for (i in 1:length(nn$h)){
+  #   if (i == k){
+  #         d_loss[[i]] <- softmax(nn$h)[[i]] - 1
+  #   }
+  #   else{
+  #         d_loss[i] <- softmax(nn$h)[[i]]
+  #   }
+  # }
+  # 
+  # dh[[length(dh)]] = softmax(nn$h)
+  # dh[[length(dh)]][k] = dh[[length(dh)]][k] - 1
   
   
   # compute the derivatives of the loss w.r.t. all the other h^l_j
