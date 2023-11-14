@@ -84,26 +84,36 @@ softmax <- function(h_final) {
 
 # The function backward() is for computing the derivatives of the loss
 backward <- function(nn, k){
-  nnh <- nn$h
-  nnW <- nn$W
-  nnb <- nn$b
+  dW <- nn$W
+  dh <- nn$h
+  db <- nn$b
   
   # compute the derivative of the loss for k_i w.r.t. h^L_j
-  loss <- c(rep(0,length(nnh)))
-  for (i in 1:length(nnh)){
+  d_loss <- c(rep(0,length(nn$h)))
+  for (i in 1:length(nn$h)){
     if (i == k){
-      loss[i] <- softmax(nnh)[[i]] - 1
+          d_loss[[i]] <- softmax(nn$h)[[i]] - 1
     }
     else{
-      loss[i] <- softmax(nnh)[[i]]
+          d_loss[i] <- softmax(nn$h)[[i]]
     }
   }
+  
+  dh[[length(dh)]] = softmax(nn$h)
+  dh[[length(dh)]][k] = dh[[length(dh)]][k] - 1
+  
   
   # compute the derivatives of the loss w.r.t. all the other h^l_j
   # back-propagation
   
+  for(i in length(d_loss)) {
+        if(d_loss[i] < 0) {
+              d_loss[i] <- 0
+        }
+        
+  }
   
-  nn <- list(h = nnh, W = nnW, b = nnb, dh = dh, dW = dW, db = db)
+  nn <- list(h = nn$h, W = nn$W, b = nn$b, dh = dh, dW = dW, db = db)
   return(nn)
 }
 
