@@ -44,32 +44,20 @@ netup <- function(d) {
 # h_j is the list of node values to apply the activation function to
 ReLU <- function(h_j) {
       # Applied to each element in the list 
-      return(max(0, h_j))
+      return(pmax(0, h_j))
 }
 
 
 # The function forward() is for computing the every node value except on the 
 # first layer
 forward <- function(nn, inp){
+  # put the values for the first layer in each node
   nn$h[[1]] <- inp 
   
+  # compute the remaining node values
   for(i in 2:length(nn$h)) {
-        nn$h[[i]] <- nn$W[[i-1]] %*% nn$h[[i-1]] + nn$b[[i-1]]
+        nn$h[[i]] <- ReLU(nn$W[[i-1]] %*% nn$h[[i-1]] + nn$b[[i-1]])
   }
-  
-  # compute the remaining node values using the ReLU transform
-  # for (j in 1:length(nnW)){
-  #   for (k in 1:nrow(nnW[[j]])){
-  #     for (m in 1:ncol(nnW[[j]])){
-  #       if ((nnW[[j]][k, m] * nnh[[j]][k] + nnb[[j]][k]) > 0){
-  #         nnh[[j+1]][m] <- nnW[[j]][k, m] * nnh[[j]][k] + nnb[[j]][k]
-  #       }
-  #       else{
-  #         nnh[[j+1]][m] <- 0
-  #       }
-  #     }
-  #   }
-  # }
  
   return(nn)
 }
