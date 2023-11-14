@@ -29,9 +29,13 @@ netup <- function(d) {
         rep(0, times = d[j])
   })
   
-  b <- lapply(seq_along(d)[-length(d)], function(z) {
+  b <- lapply(seq_along(d)[-1], function(z) {
         runif(d[z], 0, 0.2)
   })
+  
+  # b <- lapply(seq_along(d)[-length(d)], function(z) {
+  #       runif(d[z], 0, 0.2)
+  # })
 
   nn <- list(h = h, W = W, b = b)
   return(nn)
@@ -47,31 +51,26 @@ ReLU <- function(h_j) {
 # The function forward() is for computing the every node value except on the 
 # first layer
 forward <- function(nn, inp){
-  nnh <- nn$h 
-  nnh[[1]] <- inp 
-  nnW <- nn$W
-  nnb <- nn$b
+  nn$h[[1]] <- inp 
   
-  # put the input values in the node of the first layer
-  # for (i in 1:length(nnh[[1]])){
-  #   nnh[[1]][i] <- inp[i]
-  # }
-  
-  # compute the remaining node values using the ReLU transform
-  for (j in 1:length(nnW)){
-    for (k in 1:nrow(nnW[[j]])){
-      for (m in 1:ncol(nnW[[j]])){
-        if ((nnW[[j]][k, m] * nnh[[j]][k] + nnb[[j]][k]) > 0){
-          nnh[[j+1]][m] <- nnW[[j]][k, m] * nnh[[j]][k] + nnb[[j]][k]
-        }
-        else{
-          nnh[[j+1]][m] <- 0
-        }
-      }
-    }
+  for(i in 2:length(nn$h)) {
+        nn$h[[i]] <- nn$W[[i-1]] %*% nn$h[[i-1]] + nn$b[[i-1]]
   }
   
-  nn <- list(h = nnh, W = nnW, b = nnb)
+  # compute the remaining node values using the ReLU transform
+  # for (j in 1:length(nnW)){
+  #   for (k in 1:nrow(nnW[[j]])){
+  #     for (m in 1:ncol(nnW[[j]])){
+  #       if ((nnW[[j]][k, m] * nnh[[j]][k] + nnb[[j]][k]) > 0){
+  #         nnh[[j+1]][m] <- nnW[[j]][k, m] * nnh[[j]][k] + nnb[[j]][k]
+  #       }
+  #       else{
+  #         nnh[[j+1]][m] <- 0
+  #       }
+  #     }
+  #   }
+  # }
+ 
   return(nn)
 }
 
