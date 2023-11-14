@@ -19,6 +19,13 @@
 
 # The function netup() is for initializing the network, 
 # which includes the weights, biases and nodes
+# netup() takes on 1 input:
+# d: a vector giving the number of nodes in each layer of a network
+# netup() returns a list with 3 elements:
+# (1) h: a list of nodes for each layer
+# (2) W: a list of weight matrices
+# (3) b: a list of offset vectors
+
 netup <- function(d) {
 
   W <- lapply(seq_along(d)[-length(d)], function(i) {
@@ -43,15 +50,23 @@ netup <- function(d) {
 
 
 # The function ReLU() is for the ReLU transform
-# h_j is the list of node values to apply the activation function to
+# This function takes on h_j as an input, which is the list of node values to
+# apply the non-linear transformation
+# This function returns the list to which the ReLU transform is applied
+
 ReLU <- function(h_j) {
-      # Applied to each element in the list 
+      # Applied the ReLU transform to each element in the list 
       return(pmax(0, h_j))
 }
 
 
 # The function forward() is for computing the every node value except on the 
 # first layer
+# forward() takes on 2 inputs:
+# (1) nn: a network list as returned by netup()
+# (2) inp: a vector of input values for the first layer
+# forward() returns the updated version of network list
+
 forward <- function(nn, inp){
   # put the values for the first layer in each node
   nn$h[[1]] <- inp 
@@ -66,8 +81,11 @@ forward <- function(nn, inp){
 
 
 # The function softmax() is for computing the derivative of the loss
-# h_final represents the output values in the last layer
-# class argument represents the class that the softmax function is applied to
+# softmax() takes on two inputs:
+# (1) class: the class that the softmax function is applied to
+# (2) h_final: the output values in the last layer
+# This function returns the value
+
 softmax <- function(class, h_final) {
   # h_final is a list of raw values from the output node
   return(exp(class)/sum(exp(h_final)))
@@ -75,7 +93,19 @@ softmax <- function(class, h_final) {
 
 
 # The function backward() is for computing the derivatives of the loss
+# backward() takes on 2 inputs:
+# (1) nn: a network list as returned by forward()
+# (2) k: output class
+# backward() returns a list with 6 elements:
+# (1) h: a list of nodes for each layer
+# (2) W: a list of weight matrices
+# (3) b: a list of offset vectors
+# (4) dh: a list of the derivative w.r.t. the nodes
+# (5) dW: a list of the derivative w.r.t. the weight matrices
+# (6) db: a list of the derivative w.r.t. the offset vectors
+
 backward <- function(nn, k){
+  # initialize dW, dh, and db
   dW <- nn$W
   dh <- nn$h
   db <- nn$b
@@ -124,6 +154,15 @@ backward <- function(nn, k){
 
 
 # The function train() is for training the network
+# train() takes on 6 inputs:
+# (1) nn: a network list
+# (2) inp: the rows of matrix of input data
+# (3) k: a vector of corresponding labels
+# (4) eta: the step size
+# (5) mb: the number of data to randomly sample to compute the gradient
+# (6) nstep: the number of optimization steps to take
+# train() returns the updated version of network list
+
 train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
   nn <- netup(d)
   
@@ -138,3 +177,10 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
   
   return(nn)
 }
+
+
+# divide the iris data into training and test data
+training_data <- iris[-seq(5, nrow(iris), by = 5),]
+test_data <- iris[seq(5, nrow(iris), by = 5),]
+
+
