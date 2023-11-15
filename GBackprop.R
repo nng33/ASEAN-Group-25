@@ -196,7 +196,7 @@ list3 <- list(matrix(21:32, nrow = 4, ncol = 3),
 
 
 all_nn <- list(list1, list2, list3)
-list_of_copies <- replicate(10, nn2, simplify = FALSE)
+copies <- replicate(10, nn2, simplify = FALSE)
 
 Rprof()
 result_sum <- Reduce(function(x, y) Map('+', x, y), list_of_copies)
@@ -209,6 +209,18 @@ Rprof()
 # dw_all <- lapply(all_nn, function(x) x[[1]])
 db_all <- lapply(list_of_copies, function(x) x$db)
 sum_db <- Reduce(function(x, y) Map('+', x, y), db_all)
+avg_db <- lapply(sum_db, function(x) x/10)
+step_db <- lapply(sum_db, function(x) x/10 * 0.01)
+b <- nn2$b
+
+new_b <- Map('-', b, step_db)
+
+
+
+new_db <- db - 0.01 * avg_db
+
+
+
 
 # find the average gradients
 # dw_avg <- Reduce('+', dw_all)

@@ -144,7 +144,7 @@ backward <- function(nn, k){
             
             
             # Update gradients for weights and biases 
-            dW[[i]] <- outer(dl1, nn$h[[i]])
+            dW[[i]] <- dl1 %*% t(nn$h[[i]])
             db[[i]] <- dl1
             # # Compute the loss for the next iteration 
             # d_loss <- t(nn$W[[i]]) %*% dh 
@@ -219,7 +219,7 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
     
     
     # put all the gradients w.r.t weight and bias into one list
-    dw_all <- lapply(all_nn, function(x) x$dw)
+    dw_all <- lapply(all_nn, function(x) x$dW)
     db_all <- lapply(all_nn, function(x) x$db)
     
     # find the average gradients
@@ -242,7 +242,7 @@ data <- iris
 
 # divide the data into training and test data
 
-data[, ncol(data)] <- as.numeric(data[, ncol(data)])
+# data[, ncol(data)] <- as.numeric(data[, ncol(data)])
 test_data <- as.matrix(data[seq(5, nrow(data), by = 5),])
 training_data <- as.matrix(data[-seq(5, nrow(data), by = 5),])
 
@@ -253,11 +253,14 @@ inp <- training_data[,-ncol(training_data)]
 
 
 d <- c(4,8,7,3)
+
+set.seed(100)
 nn <- netup(d)
 
 nn1 <- forward(nn, training_data[1,-5])
 nn2 <- backward(nn1, k = 1)
 
+set.seed(100)
 train(nn, inp, k, eta=.01, mb=10, nstep=10000)
 
 
