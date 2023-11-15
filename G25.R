@@ -215,6 +215,15 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
       }
     }
     
+    # put all the gradients w.r.t weight and bias into one list
+    dw_all <- lapply(all_nn, function(x) x$dw)
+    db_all <- lapply(all_nn, function(x) x$db)
+    
+    # find the average gradients
+    dw_avg <- Reduce('+', dw_all)
+    db_avg <- Reduce('+', db_all)
+    
+    
     
       
     nn <- forward(nn, inp)
