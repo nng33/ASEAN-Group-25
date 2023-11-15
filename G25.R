@@ -129,6 +129,7 @@ backward <- function(nn, k){
             }
       }
       
+      dh[[length(dh)]]
       # d_loss <- c(rep(0,length(nn$h)))
       # for (i in 1:length(nn$h)){
       #   if (i == k){
@@ -146,7 +147,7 @@ backward <- function(nn, k){
       # Iterate through the number of operations linking the layers together
       # E.g., if we have a 4-8-7-3, then we have 3 links or number of layers - 1
       # Backpropagate through the layers to obtain the derivatives
-      layers <- length(nn$h)
+      
       for(i in rev(seq_along(nn$h)[-length(nn$h)])) {
             # Compute the derivative of the ReLU function
             relu_der <- as.numeric(nn$h[[i]] > 0)

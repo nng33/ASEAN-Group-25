@@ -72,9 +72,14 @@ softmax <- function(class, h_final) {
 
 # The function backward() is for computing the derivatives of the loss
 backward <- function(nn, k){
+      # loss wrt weights at each layer initialized at 0s
       dW <- nn$W
+      dW <- lapply(nn$W, function(x) matrix(0, nrow = nrow(x), ncol = ncol(x)))
+      # loss wrt node values at each layer
       dh <- nn$h
+      # loss wrt biases at each layer initialized at 0s
       db <- nn$b
+      db <- lapply(nn$b, function(x) rep(0, length(x)))
       
       # Compute the derivative of the loss for k_i w.r.t. h^L_j
       # Obtain the length of the last element in h of list nn
@@ -104,14 +109,20 @@ backward <- function(nn, k){
       # dh[[length(dh)]][k] = dh[[length(dh)]][k] - 1
       
       
-      # compute the derivatives of the loss w.r.t. all the other h^l_j
-      # back-propagation
-      
-      for(i in length(d_loss)) {
-            if(d_loss[i] < 0) {
-                  d_loss[i] <- 0
-            }
-            
+      # Iterate through the number of operations linking the layers together
+      # E.g., if we have a 4-8-7-3, then we have 3 links or number of layers - 1
+      # Backpropagate through the layers to obtain the derivatives
+      layers <- length(nn$h)
+      for(i in rev(seq_along(nn$h)[-length(nn$h)])) {
+            # Compute the derivative of the ReLU function
+            relu_der <- as.numeric(nn$h[[i]] > 0)
+            # Update dh for the current layer
+            dh <- d_loss * relu_der
+            # Update gradients for weights and biases 
+            dW[[i]] <- outer(dh, nn$h[[i+1]])
+            db[[i]] <- dh
+            # Compute the loss for the next iteration 
+            d_loss <- t(nn$W[[i]]) %*% dh 
       }
       
       nn <- list(h = nn$h, W = nn$W, b = nn$b, dh = dh, dW = dW, db = db)
