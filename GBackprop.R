@@ -178,7 +178,25 @@ list2 <- list(matrix(21:28, nrow = 4, ncol = 2),
               matrix(1:10, nrow = 10, ncol = 1))
 all <- list(list1, list2)
 
+################################################################################
+list1 <- list(matrix(21:32, nrow = 4, ncol = 3),
+              matrix(1:8, nrow = 4, ncol = 2),
+              matrix(1:5, nrow = 5, ncol = 1),
+              matrix(1:10, nrow = 10, ncol = 1))
 
+list2 <- list(matrix(21:32, nrow = 4, ncol = 3),
+              matrix(1:8, nrow = 4, ncol = 2),
+              matrix(1:5, nrow = 5, ncol = 1),
+              matrix(1:10, nrow = 10, ncol = 1))
+
+list3 <- list(matrix(21:32, nrow = 4, ncol = 3),
+              matrix(1:8, nrow = 4, ncol = 2),
+              matrix(1:5, nrow = 5, ncol = 1),
+              matrix(1:10, nrow = 10, ncol = 1))
+
+all <- list(list1, list2, list3)
+
+result_sum <- Reduce(function(x, y) Map(`+`, x, y), all)
 
 
 
