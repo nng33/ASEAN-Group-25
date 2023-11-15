@@ -194,9 +194,29 @@ list3 <- list(matrix(21:32, nrow = 4, ncol = 3),
               matrix(1:5, nrow = 5, ncol = 1),
               matrix(1:10, nrow = 10, ncol = 1))
 
-all <- list(list1, list2, list3)
 
-result_sum <- Reduce(function(x, y) Map(`+`, x, y), all)
+all_nn <- list(list1, list2, list3)
+
+Rprof()
+result_sum <- Reduce(function(x, y) Map(`+`, x, y), all_nn)
+Rprof(Null)
+summaryRprof()
+
+
+Rprof()
+# put all the gradients w.r.t weight and bias into one list
+# dw_all <- lapply(all_nn, function(x) x[[1]])
+db_all <- lapply(all_nn, function(x) x[[2]])
+
+# find the average gradients
+# dw_avg <- Reduce('+', dw_all)
+db_avg <- Reduce('+', db_all)
+Rprof(Null)
+summaryRprof()
+
+
+
+Reduce('+', .list)
 
 
 
