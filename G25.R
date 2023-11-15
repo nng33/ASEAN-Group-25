@@ -166,15 +166,11 @@ backward <- function(nn, k){
 # train() returns the updated version of network list
 
 train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
-  num_data <- nrow(inp)
+  # num_data <- nrow(inp)
   num_output <- length(k)
   
-  # set up network
-  nn <- netup(d)
-  
   # make a list to contain the network for each element of mini batch
-  all_nn <- rep(list(nn), mb)
-  
+ 
   # # make mini-batch
   # 
   # random_rows <- sample(num_data, size = nrow(inp), replacement = FALSE)
@@ -203,10 +199,12 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
     random_rows <- sample(nrow(inp), size = mb, replacement = FALSE)
     mini_batch <- inp[random_rows,]
     
+    all_nn <- rep(list(nn), mb)
+    
     # for each element in the mini batch
     for (j in 1:mb){
       # fill in nodes with weight
-      all_nn[[j]] <- forward(all_nn[[j]], inp = )
+      all_nn[[j]] <- forward(all_nn[[j]], inp = mini_batch[j,])
       
       # for each output class
       for (k in 1:num_output){
@@ -220,19 +218,16 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
     db_all <- lapply(all_nn, function(x) x$db)
     
     # find the average gradients
-    dw_avg <- Reduce('+', dw_all)
-    db_avg <- Reduce('+', db_all)
+    sum_dw <- Reduce(function(x, y) Map('+', x, y), dw_all)
+    sum_db <- Reduce(function(x, y) Map('+', x, y), db_all)
+    step_dw <- lapply(sum_dw, function(x) x/mb * eta) # step for W
+    step_db <- lapply(sum_db, function(x) x/mb * eta) # step for b
     
+    # update weight and bias
+    nn$W <- Map('-', nn$W, step_dw)
+    nn$b <- Map('-', nn$b, step_db)
     
-    
-      
-    nn <- forward(nn, inp)
-    nn <- backward(nn, k)    #### this k should be changed
-    nn$W <- nn$W - (eta * nn$dW)
-    nn$b <- nn$b - (eta * nn$db)
   }
-  
-  nn <- forward(nn, inp)
   
   return(nn)
 }
