@@ -11,12 +11,12 @@
 
 
 ################################################################################
+
 # This code is for setting up a simple neural network for classification and for 
 # training it using stochastic gradient descent. First, we set up a network 
 # list in netup(), and then compute the remaining node values using input values
 # in forward(). After that, we compute the derivatives of the loss in backward().
 # Then in train(), .
-
 
 ################################################################################
 
@@ -59,7 +59,7 @@ netup <- function(d) {
 # This function returns the list to which the ReLU transform is applied
 
 ReLU <- function(h_j) {
-      # Applied the ReLU transform to each element in the list 
+      # applied the ReLU transform to each element in the list 
       return(pmax(0, h_j))
 }
 
@@ -108,22 +108,21 @@ softmax <- function(class, h_final) {
 # (5) dW: a list of the derivative w.r.t. the weight matrices
 # (6) db: a list of the derivative w.r.t. the offset vectors
 
-# The function backward() is for computing the derivatives of the loss
 backward <- function(nn, k){
-      # loss wrt weights at each layer initialized at 0s
+      # loss w.r.t. weights at each layer initialized
       dW <- nn$W
       # dW <- lapply(nn$W, function(x) matrix(0, nrow = nrow(x), ncol = ncol(x)))
-      # loss wrt node values at each layer
+      # loss w.r.t. node values at each layer
       dh <- nn$h
-      # loss wrt biases at each layer initialized at 0s
+      # loss w.r.t. biases at each layer initialized
       db <- nn$b
       # db <- lapply(nn$b, function(x) rep(0, length(x)))
       
-      # Compute the derivative of the loss for k_i w.r.t. h^L_j
-      # Obtain the length of the last element in h of list nn
+      # compute the derivative of the loss for k_i w.r.t. h^L_j
+      # obtain the length of the last element in h of list nn
       nn_len <- length(nn$h[[length(nn$h)]])
       d_L <- c(rep(0,nn_len))
-      # Iterate through the values in the final node
+      # iterate through the values in the final node
       for (i in 1:nn_len){
             if (i == k){
                   d_L[i] <- softmax(nn$h[[nn_len]][i], nn$h[[length(nn$h)]]) - 1
@@ -135,22 +134,22 @@ backward <- function(nn, k){
       
       dh[[length(dh)]] <- d_L
       
-      # Iterate through the number of operations linking the layers together
-      # E.g., if we have a 4-8-7-3, then we have 3 links or number of layers - 1
-      # Backpropagate through the layers to obtain the derivatives
+      # iterate through the number of operations linking the layers together
+      # e.g., if we have a 4-8-7-3, then we have 3 links or number of layers - 1
+      # back-propagate through the layers to obtain the derivatives
       
       for(i in rev(seq_along(nn$h)[-length(nn$h)])) {
-            # Compute the derivative of the ReLU function
+            # compute the derivative of the ReLU function
             relu_der <- as.numeric(nn$h[[i+1]] > 0)
-            # Update dh for the current layer
+            # update dh for the current layer
             dl1 <- dh[[i+1]] * relu_der
             dh[[i]] <- t(nn$W[[i]]) %*% dl1
             
             
-            # Update gradients for weights and biases 
+            # update gradients for weights and biases 
             dW[[i]] <- dl1 %*% t(nn$h[[i]])
             db[[i]] <- dl1
-            # # Compute the loss for the next iteration 
+            # Compute the loss for the next iteration 
             # d_loss <- t(nn$W[[i]]) %*% dh 
       }
       
@@ -222,7 +221,7 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
     #   }
     
     
-    # put all the gradients w.r.t weight and bias into one list
+    # put all the gradients w.r.t. weight and bias into one list
     dw_all <- lapply(all_nn, function(x) x$dW)
     db_all <- lapply(all_nn, function(x) x$db)
     
