@@ -167,7 +167,7 @@ backward <- function(nn, k){
 
 train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
   # num_data <- nrow(inp)
-  num_output <- length(k)
+  # num_output <- length(unique(k))
   
   # make a list to contain the network for each element of mini batch
  
@@ -196,22 +196,27 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
     
   for (i in 1:nstep){
     # make the mini batch for this step
-    random_rows <- sample(nrow(inp), size = mb, replacement = FALSE)
+    random_rows <- sample(nrow(inp), size = mb)
     mini_batch <- inp[random_rows,]
+    k_mb <- k[random_rows]
     
     all_nn <- rep(list(nn), mb)
     
     # for each element in the mini batch
     for (j in 1:mb){
-      # fill in nodes with weight
+      # fill in nodes according to weights and biases
       all_nn[[j]] <- forward(all_nn[[j]], inp = mini_batch[j,])
       
-      # for each output class
-      for (k in 1:num_output){
-        # get gradients of all weights and biases
-        all_nn[[j]] <- backward(all_nn[[j]], k)
-      }
+      # optimize weight and biases with stochastic gradient descent
+      all_nn[[j]] <- backward(all_nn[[j]], k[j])
     }
+    
+    #   # for each output class
+    #   for (k in 1:length(unique(k))){
+    #     # get gradients of all weights and biases
+    #     all_nn[[j]] <- backward(all_nn[[j]], k)
+    #   }
+    
     
     # put all the gradients w.r.t weight and bias into one list
     dw_all <- lapply(all_nn, function(x) x$dw)
@@ -232,26 +237,28 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
   return(nn)
 }
 
+# data is iris data
+data <- iris
 
-# divide the iris data into training and test data
-irisdata <- iris
-irisdata[, ncol(irisdata)] <- as.numeric(irisdata[, ncol(irisdata)])
-test_data <- as.matrix(irisdata[seq(5, nrow(irisdata), by = 5),])
-training_data <- as.matrix(irisdata[-seq(5, nrow(irisdata), by = 5),])
-iris_k <- seq(nrow(unique(irisdata[ncol(irisdata)])))
+# divide the data into training and test data
 
+data[, ncol(data)] <- as.numeric(data[, ncol(data)])
+test_data <- as.matrix(data[seq(5, nrow(data), by = 5),])
+training_data <- as.matrix(data[-seq(5, nrow(data), by = 5),])
 
+# k <- seq(nrow(unique(data[ncol(data)])))
+k <- training_data[,ncol(training_data)]
+
+inp <- training_data[,-ncol(training_data)]
 
 
 d <- c(4,8,7,3)
 nn <- netup(d)
+
 nn1 <- forward(nn, training_data[1,-5])
 nn2 <- backward(nn1, k = 1)
 
-df <- iris
-k <- seq(nrow(unique(iris[ncol(df)])))
-inp <- as.matrix(iris[,1:4])
-
+train(nn, inp, k, eta=.01, mb=10, nstep=10000)
 
 
 
