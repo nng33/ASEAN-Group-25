@@ -69,7 +69,7 @@ ReLU <- function(h_j) {
 
 forward <- function(nn, inp){
   # put the values for the first layer in each node
-  nn$h[[1]] <- inp 
+  nn$h[[1]] <- as.numeric(inp) 
   
   # compute the remaining node values
   for(i in 2:length(nn$h)) {
@@ -108,28 +108,28 @@ softmax <- function(class, h_final) {
 backward <- function(nn, k){
       # loss wrt weights at each layer initialized at 0s
       dW <- nn$W
-      dW <- lapply(nn$W, function(x) matrix(0, nrow = nrow(x), ncol = ncol(x)))
+      # dW <- lapply(nn$W, function(x) matrix(0, nrow = nrow(x), ncol = ncol(x)))
       # loss wrt node values at each layer
       dh <- nn$h
       # loss wrt biases at each layer initialized at 0s
       db <- nn$b
-      db <- lapply(nn$b, function(x) rep(0, length(x)))
+      # db <- lapply(nn$b, function(x) rep(0, length(x)))
       
       # Compute the derivative of the loss for k_i w.r.t. h^L_j
       # Obtain the length of the last element in h of list nn
       nn_len <- length(nn$h[[length(nn$h)]])
-      d_loss <- c(rep(0,nn_len))
+      d_L <- c(rep(0,nn_len))
       # Iterate through the values in the final node
       for (i in 1:nn_len){
             if (i == k){
-                  d_loss[i] <- softmax(nn$h[[nn_len]][i], nn$h[[length(nn$h)]]) - 1
+                  d_L[i] <- softmax(nn$h[[nn_len]][i], nn$h[[length(nn$h)]]) - 1
             }
             else{
-                  d_loss[i] <- softmax(nn$h[[nn_len]][i], nn$h[[length(nn$h)]])
+                  d_L[i] <- softmax(nn$h[[nn_len]][i], nn$h[[length(nn$h)]])
             }
       }
       
-      dh[[length(dh)]] <- d_loss
+      dh[[length(dh)]] <- d_L
       
       # Iterate through the number of operations linking the layers together
       # E.g., if we have a 4-8-7-3, then we have 3 links or number of layers - 1
@@ -140,7 +140,7 @@ backward <- function(nn, k){
             relu_der <- as.numeric(nn$h[[i+1]] > 0)
             # Update dh for the current layer
             dl1 <- dh[[i+1]] * relu_der
-            dh[[i]] <- t(nn$W) %*% dl1
+            dh[[i]] <- t(nn$W[[i]]) %*% dl1
             
             
             # Update gradients for weights and biases 
@@ -185,4 +185,7 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
 training_data <- iris[-seq(5, nrow(iris), by = 5),]
 test_data <- iris[seq(5, nrow(iris), by = 5),]
 
-
+d <- c(4,8,7,3)
+nn <- netup(d)
+nn1 <- forward(nn, training_data[1,-5])
+nn2 <- backward(nn1, k = 1)
