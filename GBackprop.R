@@ -137,3 +137,49 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
       
       
 }
+softmax <- function(class, h_final) {
+  return(exp(class)/sum(exp(h_final)))
+}
+
+softmax1 <- function(h_final) {
+  return(exp(h_final)/sum(exp(h_final)))
+}
+
+a <- c(1,2,3,4)
+k <- 2
+
+b <- softmax1(a)
+b[k] = b[k] - 1
+
+
+d_loss <- rep(0,4)
+# Iterate through the values in the final node
+for (i in 1:4){
+  if (i == k){
+    d_loss[i] <- softmax(a[i], a) - 1
+  }
+  else{
+    d_loss[i] <- softmax(a[i], a)
+  }
+}
+
+b
+d_loss
+
+
+list1 <- list(matrix(21:28, nrow = 4, ncol = 2),
+              matrix(1:8, nrow = 4, ncol = 2),
+              matrix(1:5, nrow = 5, ncol = 1),
+              matrix(1:10, nrow = 10, ncol = 1))
+
+list2 <- list(matrix(21:28, nrow = 4, ncol = 2),
+              matrix(1:8, nrow = 4, ncol = 2),
+              matrix(1:5, nrow = 5, ncol = 1),
+              matrix(1:10, nrow = 10, ncol = 1))
+all <- list(list1, list2)
+
+
+
+
+
+
