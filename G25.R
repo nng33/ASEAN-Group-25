@@ -129,20 +129,7 @@ backward <- function(nn, k){
             }
       }
       
-      dh[[length(dh)]]
-      # d_loss <- c(rep(0,length(nn$h)))
-      # for (i in 1:length(nn$h)){
-      #   if (i == k){
-      #         d_loss[[i]] <- softmax(nn$h)[[i]] - 1
-      #   }
-      #   else{
-      #         d_loss[i] <- softmax(nn$h)[[i]]
-      #   }
-      # }
-      # 
-      # dh[[length(dh)]] = softmax(nn$h)
-      # dh[[length(dh)]][k] = dh[[length(dh)]][k] - 1
-      
+      dh[[length(dh)]] <- d_loss
       
       # Iterate through the number of operations linking the layers together
       # E.g., if we have a 4-8-7-3, then we have 3 links or number of layers - 1
@@ -150,14 +137,17 @@ backward <- function(nn, k){
       
       for(i in rev(seq_along(nn$h)[-length(nn$h)])) {
             # Compute the derivative of the ReLU function
-            relu_der <- as.numeric(nn$h[[i]] > 0)
+            relu_der <- as.numeric(nn$h[[i+1]] > 0)
             # Update dh for the current layer
-            dh <- d_loss * relu_der
+            dl1 <- dh[[i+1]] * relu_der
+            dh[[i]] <- t(nn$W) %*% dl1
+            
+            
             # Update gradients for weights and biases 
-            dW[[i]] <- outer(dh, nn$h[[i+1]])
-            db[[i]] <- dh
-            # Compute the loss for the next iteration 
-            d_loss <- t(nn$W[[i]]) %*% dh 
+            dW[[i]] <- outer(dl1, nn$h[[i]])
+            db[[i]] <- dl1
+            # # Compute the loss for the next iteration 
+            # d_loss <- t(nn$W[[i]]) %*% dh 
       }
       
       nn <- list(h = nn$h, W = nn$W, b = nn$b, dh = dh, dW = dW, db = db)
