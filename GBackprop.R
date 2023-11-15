@@ -44,32 +44,20 @@ netup <- function(d) {
 # h_j is the list of node values to apply the activation function to
 ReLU <- function(h_j) {
       # Applied to each element in the list 
-      return(max(0, h_j))
+      return(pmax(0, h_j))
 }
 
 
 # The function forward() is for computing the every node value except on the 
 # first layer
 forward <- function(nn, inp){
+      # put the values for the first layer in each node
       nn$h[[1]] <- inp 
       
+      # compute the remaining node values
       for(i in 2:length(nn$h)) {
-            nn$h[[i]] <- nn$W[[i-1]] %*% nn$h[[i-1]] + nn$b[[i-1]]
+            nn$h[[i]] <- ReLU(nn$W[[i-1]] %*% nn$h[[i-1]] + nn$b[[i-1]])
       }
-      
-      # compute the remaining node values using the ReLU transform
-      # for (j in 1:length(nnW)){
-      #   for (k in 1:nrow(nnW[[j]])){
-      #     for (m in 1:ncol(nnW[[j]])){
-      #       if ((nnW[[j]][k, m] * nnh[[j]][k] + nnb[[j]][k]) > 0){
-      #         nnh[[j+1]][m] <- nnW[[j]][k, m] * nnh[[j]][k] + nnb[[j]][k]
-      #       }
-      #       else{
-      #         nnh[[j+1]][m] <- 0
-      #       }
-      #     }
-      #   }
-      # }
       
       return(nn)
 }
@@ -82,26 +70,38 @@ softmax <- function(class, h_final) {
       return(exp(class)/sum(exp(h_final)))
 }
 
-
 # The function backward() is for computing the derivatives of the loss
 backward <- function(nn, k){
-      # Initialize variables to store the derivatives 
-      dW <- nn$W; dh <- nn$h; db <- nn$b
+      dW <- nn$W
+      dh <- nn$h
+      db <- nn$b
       
-      # compute the derivative of the loss for k_i w.r.t. h^L_j
-      # should be a vector of length (l+1) 
-      d_loss <- c(rep(0,length(nn$h)))
-      for (i in 1:length(nn$h)){
+      # Compute the derivative of the loss for k_i w.r.t. h^L_j
+      # Obtain the length of the last element in h of list nn
+      nn_len <- length(nn$h[[length(nn$h)]])
+      d_loss <- c(rep(0,nn_len))
+      # Iterate through the values in the final node
+      for (i in 1:nn_len){
             if (i == k){
-                  d_loss[i] <- softmax(nn$h)[[i]] - 1
+                  d_loss[i] <- softmax(nn$h[[nn_len]][i], nn$h[[length(nn$h)]]) - 1
             }
             else{
-                  d_loss[i] <- softmax(nn$h)[[i]]
+                  d_loss[i] <- softmax(nn$h[[nn_len]][i], nn$h[[length(nn$h)]])
             }
       }
       
-      dh[[length(dh)]] = softmax(nn$h)
-      dh[[length(dh)]][k] = dh[[length(dh)]][k] - 1
+      # d_loss <- c(rep(0,length(nn$h)))
+      # for (i in 1:length(nn$h)){
+      #   if (i == k){
+      #         d_loss[[i]] <- softmax(nn$h)[[i]] - 1
+      #   }
+      #   else{
+      #         d_loss[i] <- softmax(nn$h)[[i]]
+      #   }
+      # }
+      # 
+      # dh[[length(dh)]] = softmax(nn$h)
+      # dh[[length(dh)]][k] = dh[[length(dh)]][k] - 1
       
       
       # compute the derivatives of the loss w.r.t. all the other h^l_j
