@@ -230,8 +230,14 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
 
 
 # divide the iris data into training and test data
-training_data <- iris[-seq(5, nrow(iris), by = 5),]
-test_data <- iris[seq(5, nrow(iris), by = 5),]
+irisdata <- iris
+irisdata[, ncol(irisdata)] <- as.numeric(irisdata[, ncol(irisdata)])
+test_data <- as.matrix(irisdata[seq(5, nrow(irisdata), by = 5),])
+training_data <- as.matrix(irisdata[-seq(5, nrow(irisdata), by = 5),])
+iris_k <- seq(nrow(unique(irisdata[ncol(irisdata)])))
+
+
+
 
 d <- c(4,8,7,3)
 nn <- netup(d)
