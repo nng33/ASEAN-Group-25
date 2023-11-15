@@ -211,7 +211,7 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
       all_nn[[j]] <- forward(all_nn[[j]], inp = mini_batch[j,])
       
       # optimize weight and biases with stochastic gradient descent
-      all_nn[[j]] <- backward(all_nn[[j]], k[j])
+      all_nn[[j]] <- backward(all_nn[[j]], k_mb[j])
     }
     
     #   # for each output class
