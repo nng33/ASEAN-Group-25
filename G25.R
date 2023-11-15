@@ -166,9 +166,57 @@ backward <- function(nn, k){
 # train() returns the updated version of network list
 
 train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
+  num_data <- nrow(inp)
+  num_output <- length(k)
+  
+  # set up network
   nn <- netup(d)
   
+  # make a list to contain the network for each element of mini batch
+  all_nn <- rep(list(nn), mb)
+  
+  # # make mini-batch
+  # 
+  # random_rows <- sample(num_data, size = nrow(inp), replacement = FALSE)
+  # # randomly rearrange input matrix
+  # mod_inp <- inp[random_rows,]
+  # 
+  # # make mini batch
+  # mini_batch <- vector(mode = "list", length = num_data/mb) #what if remainder != 0
+  
+  
+  # i have weight
+  # fill in networks with weight 
+    # >> have multiple networks with same weight and biases but different node values
+    # number of networks == number of elements in the minibatch = mb
+  # boo hoo these network sucks
+  # do gradient descent for each network and for each output class k to adjust parameter!
+    # get gradients of everything for each network
+    # get average gradients
+    # STEP
+    # new weight and biases for class k
+  # NEW WEIGHT AND BIASES FOR ALL OUTPUT CLASS :))
+  # fill in ALL network with new weight and biases
+    
   for (i in 1:nstep){
+    # make the mini batch for this step
+    random_rows <- sample(nrow(inp), size = mb, replacement = FALSE)
+    mini_batch <- inp[random_rows,]
+    
+    # for each element in the mini batch
+    for (j in 1:mb){
+      # fill in nodes with weight
+      all_nn[[j]] <- forward(all_nn[[j]], inp = )
+      
+      # for each output class
+      for (k in 1:num_output){
+        # get gradients of all weights and biases
+        all_nn[[j]] <- backward(all_nn[[j]], k)
+      }
+    }
+    
+    
+      
     nn <- forward(nn, inp)
     nn <- backward(nn, k)    #### this k should be changed
     nn$W <- nn$W - (eta * nn$dW)
@@ -189,3 +237,12 @@ d <- c(4,8,7,3)
 nn <- netup(d)
 nn1 <- forward(nn, training_data[1,-5])
 nn2 <- backward(nn1, k = 1)
+
+df <- iris
+k <- seq(nrow(unique(iris[ncol(df)])))
+inp <- as.matrix(iris[,1:4])
+
+
+
+
+
