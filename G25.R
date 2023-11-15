@@ -2,6 +2,7 @@
 ## Daiki : s2547603
 ## Nathan : s2524152
 
+# https://github.com/DaikiM60711/ASEAN-Group-25.git
 
 ## Contribution to this project
 ## Frans (%): Handled 
@@ -10,8 +11,11 @@
 
 
 ################################################################################
-
-
+# This code is for setting up a simple neural network for classification and for 
+# training it using stochastic gradient descent. First, we set up a network 
+# list in netup(), and then compute the remaining node values using input values
+# in forward(). After that, we compute the derivatives of the loss in backward().
+# Then in train(), .
 
 
 ################################################################################
