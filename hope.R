@@ -203,7 +203,7 @@ get_prediction <- function(nn, input){
   pred_class <- lapply(pred_all_prob, which.max)
   
   # return a vector of predicted classes
-  return(unlist(pred_class)) 
+  return(unlist(pred_class))
 }
 
 get_mis_rate <- function(predicted, observed){
