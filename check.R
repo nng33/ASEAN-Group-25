@@ -347,3 +347,17 @@ k <- c(1,3,2)
   for (i in 1:ncol(a)){
     a[k[i],i] <- a[k[i],i] - 1
   }
+
+decrement_index <- function(a, k, increment = 1) {
+      # convert your vector in a matrix so each value in the vector becomes a 
+      # column element in the next matrix
+      mat_k <- matrix(rep(k), nrow(a), ncol(a), byrow = TRUE) 
+      # convert the original matrix into a matrix of column indices
+      mat_ind <- matrix(rep(1:nrow(a), ncol(a)), nrow = nrow(a))
+      # match the vector turned matrix to the converted original matrix 
+      # convert it into a matrix of 0s and 1s and minus with original matrix
+      return(a - as.matrix(mat_k == mat_ind) * increment)
+}
+
+
+print(a)
