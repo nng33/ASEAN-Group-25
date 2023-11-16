@@ -246,10 +246,104 @@ for (i in 1:nstep){
 }
   
 
+a <- c(1,2,3,3,4)
+b <- c(1,4,2,3,4)
+
+sum(a != b)
 
 
 
+train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
+  # inp is n x # of variables
+  # make nodes for training 
+  train_h <- lapply(nn$h, function(j) {
+    matrix(rep(0, length(j)*mb), length(j), mb)
+  })
+  
+  nn$h <- train_h
+  
+  
+  # for (i in 1:nstep){
+    # make the mini batch for this step
+    random_rows <- sample(nrow(inp), size = mb) # get mb rows
+    mini_batch <- t(inp[random_rows,]) # i want inputs to be in the columns
+    k_mb <- k[random_rows]
+    
+  # }
+}
 
 
+#################################################################################
+
+# data is iris data
+data <- iris
+
+# divide the data into training and test data
+# change categorical
+data[, ncol(data)] <- as.numeric(data[, ncol(data)])
+
+# get test data
+test_data <- as.matrix(data[seq(5, nrow(data), by = 5),])
+test_data_inp <- test_data[,-ncol(test_data)]
+test_data_out <- test_data[,ncol(test_data)]
+
+# get training data
+training_data <- as.matrix(data[-seq(5, nrow(data), by = 5),])
+
+k <- training_data[,ncol(training_data)]
+inp <- training_data[,-ncol(training_data)]
 
 
+d <- c(4,8,7,3)
+
+###########################################
+# check if forward and backward works
+nn <- netup(d)
+for_test <- forward(nn, mini_batch[1,])
+back_test <- backward(for_test, k_mb[1])
+
+# check for matrices
+# update h first
+train_h <- lapply(nn$h, function(j) {
+  matrix(rep(0, length(j)*mb), length(j), mb)
+})
+nn$h <- train_h
+
+for_test_mat <- forward(nn, t(mini_batch))
+# output is non-averaged gradient
+back_test_mat <- backward(for_test_mat, k_mb)
+
+# get average gradient
+dW_test <- lapply(back_test_mat$dW, function(x,mb){x/mb}, mb = mb)
+db_test <- lapply(back_test_mat$db, function(x, mb){rowSums(x)/mb}, mb = mb)
+
+# update parameter
+eta <- 0.01
+for (i in 1:length(back_test_mat$W)){
+  back_test_mat$W[[i]] <- back_test_mat$W[[i]] - eta*dW_test[[i]]
+  back_test_mat$b[[i]] <- back_test_mat$b[[i]] - eta*db_test[[i]]
+}
+
+################################################################
+
+# Test train()
+nn <- netup(d)
+nn1 <- train(nn, inp, k, nstep = 10000)
+
+# get prediction
+pred_class <- get_prediction(nn1, test_data_inp)
+rate <- get_mis_rate(pred_class, test_data_out)
+rate
+pred_class
+test_data_out
+
+#################################################################
+
+# change for loop
+a <- matrix(seq(1:12), 4,3)
+k <- c(1,3,2)
+
+# do this without for loop
+  for (i in 1:ncol(a)){
+    a[k[i],i] <- a[k[i],i] - 1
+  }
