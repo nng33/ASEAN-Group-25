@@ -146,34 +146,19 @@ backward <- function(nn, k){
 # train() returns the updated version of network list
 
 train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
-  # num_data <- nrow(inp)
-  # num_output <- length(unique(k))
-  
-  # make a list to contain the network for each element of mini batch
- 
-  # # make mini-batch
-  # 
-  # random_rows <- sample(num_data, size = nrow(inp), replacement = FALSE)
-  # # randomly rearrange input matrix
-  # mod_inp <- inp[random_rows,]
-  # 
-  # # make mini batch
-  # mini_batch <- vector(mode = "list", length = num_data/mb) #what if remainder != 0
-  
-  
   # i have weight
   # fill in networks with weight 
-    # >> have multiple networks with same weight and biases but different node values
-    # number of networks == number of elements in the minibatch = mb
+  # >> have multiple networks with same weight and biases but different node values
+  # number of networks == number of elements in the minibatch = mb
   # boo hoo these network sucks
   # do gradient descent for each network and for each output class k to adjust parameter!
-    # get gradients of everything for each network
-    # get average gradients
-    # STEP
-    # new weight and biases for class k
+  # get gradients of everything for each network
+  # get average gradients
+  # STEP
+  # new weight and biases for class k
   # NEW WEIGHT AND BIASES FOR ALL OUTPUT CLASS :))
   # fill in ALL network with new weight and biases
-    
+  
   for (i in 1:nstep){
     # make the mini batch for this step
     random_rows <- sample(nrow(inp), size = mb)
@@ -188,7 +173,7 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
       all_nn[[j]] <- forward(all_nn[[j]], inp = mini_batch[j,])
       
       # optimize weight and biases with stochastic gradient descent
-      all_nn[[j]] <- backward(all_nn[[j]], k[j])
+      all_nn[[j]] <- backward(all_nn[[j]], k_mb[j])
     }
     
     #   # for each output class
@@ -198,7 +183,7 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
     #   }
     
     
-    # put all the gradients w.r.t weight and bias into one list
+    # put all the gradients w.r.t. weight and bias into one list
     dw_all <- lapply(all_nn, function(x) x$dW)
     db_all <- lapply(all_nn, function(x) x$db)
     
