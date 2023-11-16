@@ -178,7 +178,6 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
     # step 5: adjust the parameters 
     nn$W <- mapply(function(x_old, x_new){x_old-(eta*x_new)}, nn$W, dW_avg)
     nn$b <- mapply(function(x_old, x_new){x_old-(eta*x_new)}, nn$b, db_avg)
-
   }
   
   return(nn)
