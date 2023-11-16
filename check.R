@@ -361,3 +361,22 @@ decrement_index <- function(a, k, increment = 1) {
 
 
 print(a)
+
+##############################################################
+
+
+make_zero_list <- function(j){
+  # j is matrix
+  row <- nrow(j)
+  col <- ncol(j)
+  matrix(0, row, col)
+}
+
+system.time(test <- lapply(nn$W, make_zero_list))
+system.time(test1 <- lapply(nn$W, function(x){x*0}))
+
+
+
+
+
+

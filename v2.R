@@ -19,7 +19,7 @@
 
 netup <- function(d) {
   
-  # The function netup() is for initializing the network, 
+  # netup() is for initializing the network, 
   # which includes the weights, biases and nodes
   # input:
   # d: a vector giving the number of nodes in each layer of a network
@@ -28,17 +28,17 @@ netup <- function(d) {
   # (2) W: a list of weight matrices. W[[l]] links layer l to l+1
   # (3) b: a list of offset/bias vectors. b[[l]] links layer l to l+1
   
-  # Initialise weights with Uniform(0, 0.2) random deviates
+  # initialize weights with Uniform(0, 0.2) random deviates
   W <- lapply(seq_along(d)[-length(d)], function(i) {
     matrix(runif(d[i] * d[i+1], 0, 0.2), d[i+1], d[i])
   })
   
-  # initialise all node values to be 0
+  # initialize all node values to be 0
   h <- lapply(seq_along(d), function(j) {
     rep(0, times = d[j])
   })
   
-  # Initialise offsets with Uniform(0, 0.2) random deviates
+  # initialize offsets with Uniform(0, 0.2) random deviates
   b <- lapply(seq_along(d)[-1], function(z) {
     runif(d[z], 0, 0.2)
   })
@@ -51,11 +51,12 @@ netup <- function(d) {
 
 ReLU <- function(x) {
   
-  # ReLU() applyies ReLU activation function to array x
+  # ReLU() applies ReLU activation function to array x
   # returns an array of the transformed input
  
   return(pmax(x, 0))
 }
+
 
 softmax <- function(h){
   
@@ -77,7 +78,7 @@ forward <- function(nn, inp){
   # returns the updated version of network list
   
   # put the values for the first layer
-  nn$h[[1]] <- as.matrix(inp)
+  nn$h[[1]] <- inp
   
   # compute and update the remaining node values
   # by applying the ReLU activation function to the linear combination
@@ -90,10 +91,11 @@ forward <- function(nn, inp){
   return(nn)
 }
 
+
 backward <- function(nn, k){
   
-  # The function backward() is for computing the derivatives of the loss
-  # backward() takes on 2 inputs:
+  # backward() is for computing the derivatives of the loss
+  # inputs:
   # (1) nn: a network list as returned by forward()
   # (2) k: output class
   # backward() returns a list with 6 elements:
@@ -104,22 +106,22 @@ backward <- function(nn, k){
   # (5) dW: a list of the derivative w.r.t. the weight matrices
   # (6) db: a list of the derivative w.r.t. the offset vectors
   
-  # initialise lists for storing derivatives of the loss function:
+  # initialize lists for storing derivatives of the loss function:
   
-  # derivative w.r.t to the nodes has same dimension as h
+  # derivative w.r.t. to the nodes has same dimension as h
   dh <- nn$h
   
-  # derivative w.r.t to weights has same dimension as W
+  # derivative w.r.t. to weights has same dimension as W
   dW <- nn$W
   
-  # derivative w.r.t to biases has same dimension as b
+  # derivative w.r.t. to biases has same dimension as b
   db <- nn$b
   
   # derivative of the loss for k_i w.r.t. the nodes in the last layer of hL
   dh[[length(dh)]] <- softmax(nn$h[[length(nn$h)]])
   dh[[length(dh)]][k] <- dh[[length(dh)]][k] - 1
   
-  # Backpropagate through the layers to obtain the other derivatives
+  # Back-propagate through the layers to obtain the other derivatives
   # start from the last layer and work backwards
   # we have length(nn$h)-1 layer of weights and biases to populate
   for(i in (length(nn$h)-1):1){
@@ -127,13 +129,13 @@ backward <- function(nn, k){
     # give logical mask for d_j^l+1 > 0 
     relu_der <- nn$h[[i+1]] > 0 
     
-    #dl1_j = d_j^l+1 = dh_j^l+1 if h_j^l+1 >0, 0 otherwise.
+    # dl1_j = d_j^l+1 = dh_j^l+1 if h_j^l+1 >0, 0 otherwise.
     dl1 <- dh[[i+1]] * relu_der
     
-    # Update dh for the current layer
+    # update dh for the current layer
     dh[[i]] <- t(nn$W[[i]]) %*% dl1
     
-    # Update gradients for weights
+    # update gradients for weights
     dW[[i]] <- dl1 %*% t(nn$h[[i]])
     
     # update gradients for biases
@@ -145,9 +147,27 @@ backward <- function(nn, k){
   return(nn)
 }
 
+get_zero_matrix <- function(j){
+  
+  # get_zero_matrix() creates a matrix of zero entries with
+  # the same dimension of matrix j
+  
+  row <- nrow(j)
+  col <- ncol(j)
+  return(matrix(0, row, col))
+}
+
+avg_gradient <- function(x, mb){
+  
+  # avg_gradient() divides matrix x by constant mb
+  
+  return(x/mb)
+}
+
+
 train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
   
-  # train() trains the network and optimise the weights and biases
+  # train() trains the network and optimize the weights and biases
   # by stochastic gradient descent
   # inputs:
   # (1) nn: a network list
@@ -166,9 +186,9 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
     mini_batch <- inp[random_rows,] # randomly sample mb data from inp
     k_mb <- k[random_rows] # get corresponding output
     
-    # initialise list of 0s for summing gradients
-    dW_avg <- lapply(nn$W, function(x){x*0})
-    db_avg <- lapply(nn$b, function(x){x*0})
+    # initialize list of 0s for summing gradients
+    dW_avg <- lapply(nn$W, get_zero_matrix)
+    db_avg <- lapply(nn$b, rep, x = 0)
     
     # run network for each data in mini batch
     for (j in 1:mb){
@@ -184,12 +204,12 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
     }
     
     # step 4: average the gradients
-    dW_avg <- lapply(dW_avg, function(x, mb){x/mb}, mb = mb)
-    db_avg <- lapply(db_avg, function(x, mb){x/mb}, mb = mb)
+    dW_avg <- lapply(dW_avg, avg_gradient, mb = mb)
+    db_avg <- lapply(db_avg, avg_gradient, mb = mb)
 
     # step 5: update the parameters 
-    nn$W <- lapply(seq_along(nn$W), function(i) nn$W[[i]] - (eta*dW_avg[[i]]))
-    nn$b <- lapply(seq_along(nn$b), function(i) nn$b[[i]] - (eta * db_avg[[i]]))
+    nn$W <- mapply(function(x_old, x_new){x_old-(eta*x_new)}, nn$W, dW_avg)
+    nn$b <- mapply(function(x_old, x_new){x_old-(eta*x_new)}, nn$b, db_avg)
   }
   
   # return the updated list
@@ -198,9 +218,9 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
 
 get_prediction <- function(nn, input){
   
-  # get_prediction() predict using the neural network
+  # get_prediction() predicts using the neural network
   # inputs:
-  # nn: the neural network
+  # nn: a network list
   # input: the input data matrix. one row for each data, columns are variables
   # returns the predicted output class
   
@@ -222,10 +242,10 @@ get_prediction <- function(nn, input){
 
 get_mis_rate <- function(predicted, observed){
   
-  # get_mis-rate() returns the misclassification rate
+  # get_mis_rate() returns the misclassification rate
   # inputs:
-  # predicted: vector of predicted output class
-  # observed: vector of true output class
+  # predicted: a vector of predicted output class
+  # observed: a vector of true output class
 
   rate <- sum(predicted != observed)/length(observed)
   return(rate)  
@@ -247,22 +267,22 @@ data[, ncol(data)] <- as.numeric(data[, ncol(data)])
 # get test data
 test_data <- as.matrix(data[seq(5, nrow(data), by = 5),])
 
-# input for test data
+# the input for test data
 test_data_inp <- test_data[,-ncol(test_data)]
 
-# corresponding output of test data
+# the corresponding output of test data
 test_data_out <- test_data[,ncol(test_data)]
 
 # get training data
 training_data <- as.matrix(data[-seq(5, nrow(data), by = 5),])
 
-# k is the corresponding output of training data
+# the corresponding output of training data
 k <- training_data[,ncol(training_data)]
 
-# inp is the input of the training data
+# the input for the training data
 inp <- training_data[,-ncol(training_data)]
 
-# d is a vector of the number of nodes in each layer
+# a vector of the number of nodes in each layer
 d <- c(4,8,7,3)
 
 # train the network:
@@ -283,5 +303,3 @@ pred_class <- get_prediction(nn, test_data_inp)
 mis_rate <- get_mis_rate(pred_class, test_data_out)
 
 mis_rate
-
-

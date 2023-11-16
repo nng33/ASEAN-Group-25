@@ -1,4 +1,5 @@
 sample.interval=20000
+<<<<<<< HEAD
 "cb$patchlabels" "codeBufCode" "genCode" "cb$putconst" "cmpCallArgs" "cmpCallSymFun" "cmpCall" "cmp" "cmpSymbolAssign" "h" "tryInline" "cmpCall" "cmp" "h" "tryInline" "cmpCall" "cmp" "cmpForBody" "h" "tryInline" "cmpCall" "cmp" "h" "tryInline" "cmpCall" "cmp" "genCode" "cmpfun" "doTryCatch" "tryCatchOne" "tryCatchList" "tryCatch" "compiler:::tryCmpfun" "train" 
 "lapply" "FUN" "lapply" "findLocalsList1" "findLocalsList" "funEnv" "make.functionContext" "h" "tryInline" "cmpCall" "cmp" "genCode" "cb$putconst" "cmpCallArgs" "cmpCallSymFun" "cmpCall" "cmp" "cmpComplexAssign" "h" "tryInline" "cmpCall" "cmp" "h" "tryInline" "cmpCall" "cmp" "cmpForBody" "h" "tryInline" "cmpCall" "cmp" "h" "tryInline" "cmpCall" "cmp" "genCode" "cmpfun" "doTryCatch" "tryCatchOne" "tryCatchList" "tryCatch" "compiler:::tryCmpfun" "train" 
 "FUN" "lapply" "findLocalsList1" "findLocalsList" "funEnv" "make.functionContext" "cmpfun" "doTryCatch" "tryCatchOne" "tryCatchList" "tryCatch" "compiler:::tryCmpfun" "ReLU" "forward" "train" 
@@ -673,3 +674,17 @@ sample.interval=20000
 "match.fun" "Map" "train" 
 "backward" "train" 
 "%*%" "backward" "train" 
+=======
+"t" "backward" 
+"t" "backward" 
+"backward" 
+"backward" 
+"t" "backward" 
+"t" "backward" 
+"t" "backward" 
+"t" "backward" 
+"t" "backward" 
+"backward" 
+"t" "backward" 
+"t" "backward" 
+>>>>>>> 889ac072f65b2ad58face5fc1937f03c622ecaeb
