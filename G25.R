@@ -58,9 +58,9 @@ netup <- function(d) {
 # apply the non-linear transformation
 # This function returns the list to which the ReLU transform is applied
 
-ReLU <- function(h_j) {
-      # applied the ReLU transform to each element in the list 
-      return(pmax(0, h_j))
+ReLU <- function(x) {
+  # Applied the ReLU transform to each element in the list 
+  return(pmax(x, 0))
 }
 
 
@@ -73,7 +73,7 @@ ReLU <- function(h_j) {
 
 forward <- function(nn, inp){
   # put the values for the first layer in each node
-  nn$h[[1]] <- as.numeric(inp) 
+  nn$h[[1]] <- inp
   
   # compute the remaining node values
   for(i in 2:length(nn$h)) {
@@ -90,10 +90,43 @@ forward <- function(nn, inp){
 # (2) h_final: the output values in the last layer
 # This function returns the value
 
-softmax <- function(class, h_final) {
+# softmax <- function(class, h_final) {
+#   # h_final is a list of raw values from the output node
+#   return(exp(class)/sum(exp(h_final)))
+# }
+
+
+softmax <- function(h_final) {
   # h_final is a list of raw values from the output node
-  return(exp(class)/sum(exp(h_final)))
+  return(exp(h_final)/sum(exp(h_final)))
 }
+
+
+get_prediction <- function(nn, input){
+  # input is a matrix of data in rows, variables in columns
+  
+  # fill in net for each data
+  new_net <- apply(input, 1, forward, nn = nn)
+  
+  # get the last layer of network for each data
+  h_all <- lapply(new_net, function(x) x$h[[length(x$h)]])
+  
+  # transform node values to probabilities
+  pred_all_prob <- lapply(h_all, softmax)
+  
+  # get predicted class which is the class with the highest probability
+  pred_class <- lapply(pred_all_prob, which.max)
+  
+  # return a vector of predicted classes
+  return(unlist(pred_class)) 
+}
+
+get_mis_rate <- function(predicted, observed){
+  # misclassification rate
+  rate <- sum(predicted != observed)/length(observed)
+  return(rate)  
+}
+
 
 
 # The function backward() is for computing the derivatives of the loss
@@ -120,19 +153,24 @@ backward <- function(nn, k){
       
       # compute the derivative of the loss for k_i w.r.t. h^L_j
       # obtain the length of the last element in h of list nn
-      nn_len <- length(nn$h[[length(nn$h)]])
-      d_L <- c(rep(0,nn_len))
-      # iterate through the values in the final node
-      for (i in 1:nn_len){
-            if (i == k){
-                  d_L[i] <- softmax(nn$h[[nn_len]][i], nn$h[[length(nn$h)]]) - 1
-            }
-            else{
-                  d_L[i] <- softmax(nn$h[[nn_len]][i], nn$h[[length(nn$h)]])
-            }
-      }
+      # nn_len <- length(nn$h[[length(nn$h)]])
+      # d_L <- c(rep(0,nn_len))
+      # # iterate through the values in the final node
+      # for (i in 1:nn_len){
+      #       if (i == k){
+      #             d_L[i] <- softmax(nn$h[[nn_len]][i], nn$h[[length(nn$h)]]) - 1
+      #       }
+      #       else{
+      #             d_L[i] <- softmax(nn$h[[nn_len]][i], nn$h[[length(nn$h)]])
+      #       }
+      # }
+      # 
+      # dh[[length(dh)]] <- d_L
       
-      dh[[length(dh)]] <- d_L
+      # Compute the derivative of the loss for k_i w.r.t. h^L_j
+      dh[[length(dh)]] <- softmax(nn$h[[length(nn$h)]])
+      dh[[length(dh)]][k] <- dh[[length(dh)]][k] - 1
+      
       
       # iterate through the number of operations linking the layers together
       # e.g., if we have a 4-8-7-3, then we have 3 links or number of layers - 1
@@ -245,7 +283,7 @@ data <- iris
 
 # divide the data into training and test data
 
-# data[, ncol(data)] <- as.numeric(data[, ncol(data)])
+data[, ncol(data)] <- as.numeric(data[, ncol(data)])
 test_data <- as.matrix(data[seq(5, nrow(data), by = 5),])
 training_data <- as.matrix(data[-seq(5, nrow(data), by = 5),])
 
@@ -273,17 +311,26 @@ one <- forward(nn, clean[1,])
 one_final <- one$h[[length(one$h)]]
 one_pred <- exp(one_final)/sum(exp(one_final)) 
 
-test <- apply(clean, 1, forward, nn = nn)
 
 
-softmax1 <- function(h_final) {
-      # h_final is a list of raw values from the output node
-      return(exp(h_final)/sum(exp(h_final)))
-}
 
-h_all <- lapply(test, function(x) x$h[[4]])
-pred_all <- lapply(h_all, softmax1)
-pred_class <- lapply(pred_all, which.max)
+
+
+
+
+
+
+
+
+
+
+
+
+# clean <- test_data[,-ncol(test_data)]
+# test_forward <- apply(clean, 1, forward, nn = nn)
+# h_all <- lapply(test, function(x) x$h[[4]])
+# pred_all <- lapply(h_all, softmax1)
+# pred_class <- lapply(pred_all, which.max)
 
 # Finite differencing test
 input_data <- training_data[1,-5]

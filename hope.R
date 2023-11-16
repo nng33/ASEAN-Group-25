@@ -50,9 +50,9 @@ netup <- function(d) {
 # apply the non-linear transformation
 # This function returns the list to which the ReLU transform is applied
 
-ReLU <- function(h_j) {
+ReLU <- function(x) {
       # Applied the ReLU transform to each element in the list 
-      return(pmax(0, h_j))
+      return(pmax(x, 0))
 }
 
 
@@ -65,7 +65,7 @@ ReLU <- function(h_j) {
 
 forward <- function(nn, inp){
   # put the values for the first layer in each node
-  nn$h[[1]] <- as.numeric(inp)
+  nn$h[[1]] <- inp
 
   # compute the remaining node values
   for(i in 2:length(nn$h)) {
@@ -100,38 +100,41 @@ softmax <- function(h_final) {
 
 # The function backward() is for computing the derivatives of the loss
 backward <- function(nn, k){
-      # loss wrt weights
-      dW <- nn$W
-
-      # loss wrt node values at each layer
-      dh <- nn$h
-      
-      # loss wrt biases
-      db <- nn$b
-
-      # Compute the derivative of the loss for k_i w.r.t. h^L_j
-      dh[[length(dh)]] <- softmax(nn$h[[length(nn$h)]])
-      dh[[length(dh)]][k] <- dh[[length(dh)]][k] - 1
-      
-      # Iterate through the number of operations linking the layers together
-      # E.g., if we have a 4-8-7-3, then we have 3 links or number of layers - 1
-      # Backpropagate through the layers to obtain the derivatives
-      
-      for(i in (length(nn$h)-1):1){
-            # mask
-            relu_der <- as.numeric(nn$h[[i+1]] > 0)
-            
-            # Update dh for the current layer
-            dl1 <- dh[[i+1]] * relu_der
-            dh[[i]] <- t(nn$W[[i]]) %*% dl1
-
-            # Update gradients for weights and biases 
-            dW[[i]] <- dl1 %*% t(nn$h[[i]])
-            db[[i]] <- dl1
-      }
-      
-      nn <- list(h = nn$h, W = nn$W, b = nn$b, dh = dh, dW = dW, db = db)
-      return(nn)
+  # loss wrt weights
+  dW <- nn$W
+  
+  # loss wrt node values at each layer
+  dh <- nn$h # could be matrices!!!!
+  
+  # loss wrt biases
+  db <- nn$b
+  
+  # derivative of the loss for k_i w.r.t. hL
+  dh[[length(dh)]] <- apply(as.matrix(nn$h[[length(nn$h)]]), 2, softmax)
+  
+  for (i in 1:ncol(dh[[length(dh)]])){
+    dh[[length(dh)]][k[i],i] <- dh[[length(dh)]][k[i],i] - 1
+  }
+  
+  # Iterate through the number of operations linking the layers together
+  # E.g., if we have a 4-8-7-3, then we have 3 links or number of layers - 1
+  # Backpropagate through the layers to obtain the derivatives
+  
+  for(i in (length(nn$h)-1):1){
+        # mask
+        relu_der <- nn$h[[i+1]] > 0
+        
+        # Update dh for the current layer
+        dl1 <- dh[[i+1]] * relu_der
+        dh[[i]] <- t(nn$W[[i]]) %*% dl1
+  
+        # Update gradients for weights and biases 
+        dW[[i]] <- dl1 %*% t(nn$h[[i]])
+        db[[i]] <- dl1
+  }
+  
+  nn <- list(h = nn$h, W = nn$W, b = nn$b, dh = dh, dW = dW, db = db)
+  return(nn)
 }
 
 
@@ -146,23 +149,34 @@ backward <- function(nn, k){
 # train() returns the updated version of network list
 
 train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
-  # i have weight
-  # fill in networks with weight 
-  # >> have multiple networks with same weight and biases but different node values
-  # number of networks == number of elements in the minibatch = mb
-  # boo hoo these network sucks
-  # do gradient descent for each network and for each output class k to adjust parameter!
-  # get gradients of everything for each network
-  # get average gradients
-  # STEP
-  # new weight and biases for class k
-  # NEW WEIGHT AND BIASES FOR ALL OUTPUT CLASS :))
-  # fill in ALL network with new weight and biases
-  
+  # inp is n x # of variables
   # make nodes for training 
   train_h <- lapply(nn$h, function(j) {
     matrix(rep(0, length(j)*mb), length(j), mb)
   })
+  
+  nn$h <- train_h
+  
+  for (i in 1:nstep){
+    # make the mini batch for this step
+    random_rows <- sample(nrow(inp), size = mb) # get mb random rows
+    mini_batch <- t(inp[random_rows,]) # i want inputs to be in the columns
+    k_mb <- k[random_rows] # get corresponding output
+    
+    
+    # step 1: fill in network
+    nn <- forward(nn, mini_batch)
+    
+    # get gradients not yet averaged
+    
+    
+    
+  }
+  
+  
+  
+  
+  
   
   
   for (i in 1:nstep){
@@ -202,18 +216,47 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
   return(nn)
 }
 
+get_prediction <- function(nn, input){
+  # input is a matrix of data in rows, variables in columns
+  
+  # fill in net for each data
+  new_net <- apply(input, 1, forward, nn = nn)
+  
+  # get the last layer of network for each data
+  h_all <- lapply(new_net, function(x) x$h[[length(x$h)]])
+  
+  # transform node values to probabilities
+  pred_all_prob <- lapply(h_all, softmax)
+  
+  # get predicted class which is the class with the highest probability
+  pred_class <- lapply(pred_all_prob, which.max)
+  
+  # return a vector of predicted classes
+  return(unlist(pred_class)) 
+}
+
+get_mis_rate <- function(predicted, observed){
+  # misclassification rate
+  rate <- sum(predicted != observed)/length(observed)
+  return(rate)  
+}
+
 # data is iris data
 data <- iris
 
 # divide the data into training and test data
 
-# data[, ncol(data)] <- as.numeric(data[, ncol(data)])
+data[, ncol(data)] <- as.numeric(data[, ncol(data)])
+
+# get test data
 test_data <- as.matrix(data[seq(5, nrow(data), by = 5),])
+test_data_inp <- test_data[,-ncol(test_data)]
+test_data_out <- test_data[,ncol(test_data)]
+
+# get training data
 training_data <- as.matrix(data[-seq(5, nrow(data), by = 5),])
 
-# k <- seq(nrow(unique(data[ncol(data)])))
 k <- training_data[,ncol(training_data)]
-
 inp <- training_data[,-ncol(training_data)]
 
 
@@ -221,6 +264,10 @@ d <- c(4,8,7,3)
 
 set.seed(100)
 nn <- netup(d)
+
+pred_class <- get_prediction(nn, test_data_inp)
+mis_rate <- get_mis_rate(pred_class, test_data_out)
+
 
 nn1 <- forward(nn, training_data[1,-5])
 nn2 <- backward(nn1, k = 1)
