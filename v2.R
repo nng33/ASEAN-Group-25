@@ -175,6 +175,7 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
     dW_avg <- lapply(dW_avg, function(x, mb){x/mb}, mb = mb)
     db_avg <- lapply(db_avg, function(x, mb){x/mb}, mb = mb)
     
+    # step 5; update parameters
     for (i in 1:length(nn$W)){
       nn$W[[i]] <- nn$W[[i]] - eta*dW_avg[[i]]
       nn$b[[i]] <- nn$b[[i]] - eta*db_avg[[i]]
