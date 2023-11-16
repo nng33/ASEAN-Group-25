@@ -176,12 +176,6 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
       all_nn[[j]] <- backward(all_nn[[j]], k_mb[j])
     }
     
-    #   # for each output class
-    #   for (k in 1:length(unique(k))){
-    #     # get gradients of all weights and biases
-    #     all_nn[[j]] <- backward(all_nn[[j]], k)
-    #   }
-    
     
     # put all the gradients w.r.t. weight and bias into one list
     dw_all <- lapply(all_nn, function(x) x$dW)
