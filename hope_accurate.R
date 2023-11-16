@@ -161,7 +161,7 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
   # update nodes in network from vectors to matrices for training
   nn$h <- train_h
   
-  for (i in 1:nstep){
+  for (step in 1:nstep){
     # make the mini batch for this step
     random_rows <- sample(nrow(inp), size = mb) # get mb random rows
     mini_batch <- t(inp[random_rows,]) # i want inputs to be in the columns
@@ -181,6 +181,14 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
     for (i in 1:length(nn$W)){
       nn$W[[i]] <- nn$W[[i]] - eta*dW_avg[[i]]
       nn$b[[i]] <- nn$b[[i]] - eta*db_avg[[i]]
+    }
+    
+    # get prediction and misclassification rate every 500 runs
+    if (step %% 50 == 0){
+      pred <- get_prediction(nn, t(mini_batch))
+      rate <- get_mis_rate(pred, k_mb)
+      print(paste("iteration:", step)) 
+      print(paste("misclassification rate:", rate))
     }
   }
   
@@ -209,7 +217,7 @@ get_prediction <- function(nn, input){
 get_mis_rate <- function(predicted, observed){
   # misclassification rate
   rate <- sum(predicted != observed)/length(observed)
-  return(rate)  
+  return(rate)
 }
 
 
