@@ -174,18 +174,11 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
     # step 4: average the gradients
     dW_avg <- lapply(dW_avg, function(x, mb){x/mb}, mb = mb)
     db_avg <- lapply(db_avg, function(x, mb){x/mb}, mb = mb)
-    
-<<<<<<< HEAD
+
     # step 5: adjust the parameters 
     nn$W <- mapply(function(x_old, x_new){x_old-(eta*x_new)}, nn$W, dW_avg)
     nn$b <- mapply(function(x_old, x_new){x_old-(eta*x_new)}, nn$b, db_avg)
-=======
-    # step 5; update parameters
-    for (i in 1:length(nn$W)){
-      nn$W[[i]] <- nn$W[[i]] - eta*dW_avg[[i]]
-      nn$b[[i]] <- nn$b[[i]] - eta*db_avg[[i]]
-    }
->>>>>>> bae0a1a1cb6962ed17577207a979dde825f195ea
+
   }
   
   return(nn)
