@@ -65,7 +65,7 @@ ReLU <- function(x) {
 
 forward <- function(nn, inp){
   # put the values for the first layer in each node
-  nn$h[[1]] <- inp
+  nn$h[[1]] <- as.matrix(inp)
 
   # compute the remaining node values
   for(i in 2:length(nn$h)) {
@@ -150,6 +150,7 @@ backward <- function(nn, k){
 
 train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
   # inp is n x # of variables
+  
   # make nodes for training 
   train_h <- lapply(nn$h, function(j) {
     matrix(rep(0, length(j)*mb), length(j), mb)
@@ -163,54 +164,21 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
     mini_batch <- t(inp[random_rows,]) # i want inputs to be in the columns
     k_mb <- k[random_rows] # get corresponding output
     
-    
     # step 1: fill in network
     nn <- forward(nn, mini_batch)
     
-    # get gradients not yet averaged
+    # step 2: get gradients (not yet averaged)
+    nn <- backward(nn, k_mb)
     
+    # step 3: average the gradients
+    dW_avg <- lapply(nn$dW, function(x, mb){x/mb}, mb = mb)
+    db_avg <- lapply(nn$db, function(x, mb){rowSums(x)/mb}, mb = mb)
     
-    
-  }
-  
-  
-  
-  
-  
-  
-  
-  for (i in 1:nstep){
-    # make the mini batch for this step
-    random_rows <- sample(nrow(inp), size = mb)
-    mini_batch <- inp[random_rows,]
-    k_mb <- k[random_rows]
-    
-    all_nn <- rep(list(nn), mb)
-    
-    # for each element in the mini batch
-    for (j in 1:mb){
-      # fill in nodes according to weights and biases
-      all_nn[[j]] <- forward(all_nn[[j]], inp = mini_batch[j,])
-      
-      # optimize weight and biases with stochastic gradient descent
-      all_nn[[j]] <- backward(all_nn[[j]], k_mb[j])
+    # step 4: update parameters
+    for (i in 1:length(nn$W)){
+      nn$W[[i]] <- nn$W[[i]] - eta*dW_avg[[i]]
+      nn$b[[i]] <- nn$b[[i]] - eta*db_avg[[i]]
     }
-    
-    
-    # put all the gradients w.r.t. weight and bias into one list
-    dw_all <- lapply(all_nn, function(x) x$dW)
-    db_all <- lapply(all_nn, function(x) x$db)
-    
-    # find the average gradients
-    sum_dw <- Reduce(function(x, y) Map('+', x, y), dw_all)
-    sum_db <- Reduce(function(x, y) Map('+', x, y), db_all)
-    step_dw <- lapply(sum_dw, function(x) x/mb * eta) # step for W
-    step_db <- lapply(sum_db, function(x) x/mb * eta) # step for b
-    
-    # update weight and bias
-    nn$W <- Map('-', nn$W, step_dw)
-    nn$b <- Map('-', nn$b, step_db)
-    
   }
   
   return(nn)
