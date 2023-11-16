@@ -188,7 +188,7 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
     
     # initialize list of 0s for summing gradients
     dW_avg <- lapply(nn$W, get_zero_matrix)
-    db_avg <- lapply(nn$b, get_zero_matrix)
+    db_avg <- lapply(nn$b, rep, x = 0)
     
     # run network for each data in mini batch
     for (j in 1:mb){
