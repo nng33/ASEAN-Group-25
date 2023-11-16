@@ -266,6 +266,68 @@ nn2 <- backward(nn1, k = 1)
 set.seed(100)
 train(nn, inp, k, eta=.01, mb=10, nstep=10000)
 
+# Make the prediction and test the model
+clean <- test_data[,-ncol(test_data)]
 
+one <- forward(nn, clean[1,])
+one_final <- one$h[[length(one$h)]]
+one_pred <- exp(one_final)/sum(exp(one_final)) 
+
+test <- apply(clean, 1, forward, nn = nn)
+
+
+softmax1 <- function(h_final) {
+      # h_final is a list of raw values from the output node
+      return(exp(h_final)/sum(exp(h_final)))
+}
+
+h_all <- lapply(test, function(x) x$h[[4]])
+pred_all <- lapply(h_all, softmax1)
+pred_class <- lapply(pred_all, which.max)
+
+# Finite differencing test
+input_data <- training_data[1,-5]
+
+compute_loss <- function(nn, input_data) {
+      # forward to compute predicted probabilities
+      nn_forward <- forward(nn, input_data)
+      last_node <- nn_forward$h[[length(nn_forward$h)]]
+      pred_prod <- c()
+      for(i in length(last_node)) {
+            pred_prod <- exp(last_node[i])/sum(exp(last_node))
+      }
+      
+      loss <- -sum(log(pred_prod))/length(input_data)
+      return(loss)
+}
+
+# Function to perform finite differencing for a specific weight
+finite_difference_check <- function(nn, input_data, k, weight_row, weight_col, epsilon = 1e-5) {
+      # Create a copy of the original network
+      nn_perturbed <- nn
+      
+      # Perturb the weight slightly
+      nn_perturbed$W[[k]][weight_row, weight_col] <- nn$W[[k]][weight_row, weight_col] + epsilon
+      
+      # Compute the original loss
+      original_loss <- compute_loss(nn, input_data)
+      
+      # Compute the perturbed loss
+      perturbed_loss <- compute_loss(nn_perturbed, input_data)
+      
+      # Compute the numerical derivative
+      numerical_derivative <- (perturbed_loss - original_loss) / epsilon
+      
+      # Get the analytical derivative using your backward function
+      nn_backward <- backward(nn, k)  # Assuming labels[1] is the correct class for this example
+      analytical_derivative <- nn_backward$db[[k]][weight_row]
+      
+      # Compare the numerical and analytical derivatives
+      cat("Numerical Derivative:", numerical_derivative, "\n")
+      cat("Analytical Derivative:", analytical_derivative, "\n")
+}
+
+# Now, use the finite_difference_check function for a specific weight in a specific layer
+k <- 1  # Change this to the layer index you want to check
 
 
