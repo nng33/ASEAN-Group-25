@@ -159,6 +159,12 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
   # NEW WEIGHT AND BIASES FOR ALL OUTPUT CLASS :))
   # fill in ALL network with new weight and biases
   
+  # make nodes for training 
+  train_h <- lapply(nn$h, function(j) {
+    matrix(rep(0, length(j)*mb), length(j), mb)
+  })
+  
+  
   for (i in 1:nstep){
     # make the mini batch for this step
     random_rows <- sample(nrow(inp), size = mb)
