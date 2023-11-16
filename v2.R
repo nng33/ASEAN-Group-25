@@ -147,14 +147,20 @@ backward <- function(nn, k){
   return(nn)
 }
 
-get_zero_matrix <- function(j){
+get_zero_matrix <- function(mat){
   
   # get_zero_matrix() creates a matrix of zero entries with
-  # the same dimension of matrix j
+  # the same dimension of matrix mat
   
-  row <- nrow(j)
-  col <- ncol(j)
-  return(matrix(0, row, col))
+  return(matrix(0, nrow(mat), ncol(mat)))
+}
+
+get_zero_vector <- function(v){
+  
+  # get_zero_array() creates a vector of zero entries with
+  # the same length as vector v
+  
+  return(numeric(length(v)))
 }
 
 avg_gradient <- function(x, mb){
@@ -188,7 +194,7 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
     
     # initialize list of 0s for summing gradients
     dW_avg <- lapply(nn$W, get_zero_matrix)
-    db_avg <- lapply(nn$b, rep, x = 0)
+    db_avg <- lapply(nn$b, get_zero_vector)
     
     # run network for each data in mini batch
     for (j in 1:mb){
@@ -292,7 +298,7 @@ set.seed(2)
 nn <- netup(d)
 
 # step 2: train the network
-nn <- train(nn, inp, k)
+system.time(nn <- train(nn, inp, k))
 
 # Test the model:
 
