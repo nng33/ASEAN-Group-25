@@ -151,11 +151,14 @@ backward <- function(nn, k){
 train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
   # inp is n x # of variables
   
-  # make nodes for training 
+  # make matrices of nodes for training 
+  # rows corresponds to which node, each column correspond to one 
+  # data from the mini batch
   train_h <- lapply(nn$h, function(j) {
     matrix(rep(0, length(j)*mb), length(j), mb)
   })
   
+  # update nodes in network from vectors to matrices for training
   nn$h <- train_h
   
   for (i in 1:nstep){
@@ -209,40 +212,57 @@ get_mis_rate <- function(predicted, observed){
   return(rate)  
 }
 
+
+###############################################################################
+# application
+
 # data is iris data
 data <- iris
 
-# divide the data into training and test data
-
+# assume output is in the very last column
+# convert categorical output into integers
 data[, ncol(data)] <- as.numeric(data[, ncol(data)])
+
+# divide the data into training and test data:
 
 # get test data
 test_data <- as.matrix(data[seq(5, nrow(data), by = 5),])
+
+# input for test data
 test_data_inp <- test_data[,-ncol(test_data)]
+
+# corresponding output of test data
 test_data_out <- test_data[,ncol(test_data)]
 
 # get training data
 training_data <- as.matrix(data[-seq(5, nrow(data), by = 5),])
 
+# k is the corresponding output of training data
 k <- training_data[,ncol(training_data)]
+
+# inp is the input of the training data
 inp <- training_data[,-ncol(training_data)]
 
-
+# d is a vector of the number of nodes in each layer
 d <- c(4,8,7,3)
 
-set.seed(100)
+# train the network:
+set.seed(2)
+
+# step 1: set the network
 nn <- netup(d)
 
+# step 2: train the network
+nn <- train(nn, inp, k)
+
+# Test the model:
+
+# make predictions with test data
 pred_class <- get_prediction(nn, test_data_inp)
+
+# get the misclassification rate
 mis_rate <- get_mis_rate(pred_class, test_data_out)
 
-
-nn1 <- forward(nn, training_data[1,-5])
-nn2 <- backward(nn1, k = 1)
-
-set.seed(100)
-train(nn, inp, k, eta=.01, mb=10, nstep=10000)
-
-
+mis_rate
 
 
