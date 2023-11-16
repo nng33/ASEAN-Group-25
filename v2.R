@@ -170,6 +170,19 @@ avg_gradient <- function(x, mb){
   return(x/mb)
 }
 
+# add_weight <- function(i) {
+#       
+#   # add_weight adds the change in weights at each step
+#       
+#   return(dW_avg[[i]] + nn$dW[[i]])
+# }
+
+# add_bias <- function(j) {
+#       
+#       # add_weight adds the change in weights at each step
+#       
+#       return(db_avg[[j]] + nn$db[[j]])
+# }
 
 train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
   
@@ -205,8 +218,8 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
       nn <- backward(nn, k_mb[j])
       
       # step 3: aggregate gradients
-      dW_avg <- Map('+', dW_avg, nn$dW)
-      db_avg <- Map('+', db_avg, nn$db)
+      dW_avg <- lapply(seq_along(dW_avg), function(i) dW_avg[[i]] + nn$dW[[i]])
+      db_avg <- lapply(seq_along(db_avg), function(i) db_avg[[i]] + nn$db[[i]])
     }
     
     # step 4: average the gradients
