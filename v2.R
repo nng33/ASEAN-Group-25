@@ -78,7 +78,7 @@ forward <- function(nn, inp){
   # returns the updated version of network list
   
   # put the values for the first layer
-  nn$h[[1]] <- as.matrix(inp)
+  nn$h[[1]] <- inp
   
   # compute and update the remaining node values
   # by applying the ReLU activation function to the linear combination
@@ -147,6 +147,24 @@ backward <- function(nn, k){
   return(nn)
 }
 
+get_zero_matrix <- function(j){
+  
+  # get_zero_matrix() creates a matrix of zero entries with
+  # the same dimension of matrix j
+  
+  row <- nrow(j)
+  col <- ncol(j)
+  return(matrix(0, row, col))
+}
+
+avg_gradient <- function(x, mb){
+  
+  # avg_gradient() divides matrix x by constant mb
+  
+  return(x/mb)
+}
+
+
 train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
   
   # train() trains the network and optimize the weights and biases
@@ -169,8 +187,8 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
     k_mb <- k[random_rows] # get corresponding output
     
     # initialize list of 0s for summing gradients
-    dW_avg <- lapply(nn$W, function(x){x*0})
-    db_avg <- lapply(nn$b, function(x){x*0})
+    dW_avg <- lapply(nn$W, get_zero_matrix)
+    db_avg <- lapply(nn$b, get_zero_matrix)
     
     # run network for each data in mini batch
     for (j in 1:mb){
@@ -186,8 +204,8 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
     }
     
     # step 4: average the gradients
-    dW_avg <- lapply(dW_avg, function(x, mb){x/mb}, mb = mb)
-    db_avg <- lapply(db_avg, function(x, mb){x/mb}, mb = mb)
+    dW_avg <- lapply(dW_avg, avg_gradient, mb = mb)
+    db_avg <- lapply(db_avg, avg_gradient, mb = mb)
 
     # step 5: update the parameters 
     nn$W <- mapply(function(x_old, x_new){x_old-(eta*x_new)}, nn$W, dW_avg)
