@@ -377,6 +377,6 @@ system.time(test1 <- lapply(nn$W, function(x){x*0}))
 
 
 
-
+lapply(nn$b, rep, x=0)
 
 

@@ -298,7 +298,10 @@ set.seed(2)
 nn <- netup(d)
 
 # step 2: train the network
-system.time(nn <- train(nn, inp, k))
+Rprof()
+nn <- train(nn, inp, k)
+Rprof(NULL)
+summaryRprof()
 
 # Test the model:
 
