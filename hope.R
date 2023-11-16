@@ -27,17 +27,17 @@
 # (3) b: a list of offset vectors
 
 netup <- function(d) {
-
+  
   W <- lapply(seq_along(d)[-length(d)], function(i) {
-        matrix(runif(d[i] * d[i+1], 0, 0.2), d[i+1], d[i])
+    matrix(runif(d[i] * d[i+1], 0, 0.2), d[i+1], d[i])
   })
   
   h <- lapply(seq_along(d), function(j) {
-        rep(0, times = d[j])
+    rep(0, times = d[j])
   })
   
   b <- lapply(seq_along(d)[-1], function(z) {
-        runif(d[z], 0, 0.2)
+    runif(d[z], 0, 0.2)
   })
   
   nn <- list(h = h, W = W, b = b)
@@ -51,8 +51,8 @@ netup <- function(d) {
 # This function returns the list to which the ReLU transform is applied
 
 ReLU <- function(x) {
-      # Applied the ReLU transform to each element in the list 
-      return(pmax(x, 0))
+  # Applied the ReLU transform to each element in the list 
+  return(pmax(x, 0))
 }
 
 
@@ -66,12 +66,12 @@ ReLU <- function(x) {
 forward <- function(nn, inp){
   # put the values for the first layer in each node
   nn$h[[1]] <- as.matrix(inp)
-
+  
   # compute the remaining node values
   for(i in 2:length(nn$h)) {
-        nn$h[[i]] <- ReLU(nn$W[[i-1]] %*% nn$h[[i-1]] + nn$b[[i-1]])
+    nn$h[[i]] <- ReLU(nn$W[[i-1]] %*% nn$h[[i-1]] + nn$b[[i-1]])
   }
- 
+  
   return(nn)
 }
 
@@ -121,16 +121,16 @@ backward <- function(nn, k){
   # Backpropagate through the layers to obtain the derivatives
   
   for(i in (length(nn$h)-1):1){
-        # mask
-        relu_der <- nn$h[[i+1]] > 0
-        
-        # Update dh for the current layer
-        dl1 <- dh[[i+1]] * relu_der
-        dh[[i]] <- t(nn$W[[i]]) %*% dl1
-  
-        # Update gradients for weights and biases 
-        dW[[i]] <- dl1 %*% t(nn$h[[i]])
-        db[[i]] <- dl1
+    # mask
+    relu_der <- nn$h[[i+1]] > 0
+    
+    # Update dh for the current layer
+    dl1 <- dh[[i+1]] * relu_der
+    dh[[i]] <- t(nn$W[[i]]) %*% dl1
+    
+    # Update gradients for weights and biases 
+    dW[[i]] <- dl1 %*% t(nn$h[[i]])
+    db[[i]] <- dl1
   }
   
   nn <- list(h = nn$h, W = nn$W, b = nn$b, dh = dh, dW = dW, db = db)
