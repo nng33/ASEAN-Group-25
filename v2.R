@@ -208,8 +208,8 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
     db_avg <- lapply(db_avg, avg_gradient, mb = mb)
 
     # step 5: update the parameters 
-    nn$W <- mapply(function(x_old, x_new){x_old-(eta*x_new)}, nn$W, dW_avg)
-    nn$b <- mapply(function(x_old, x_new){x_old-(eta*x_new)}, nn$b, db_avg)
+    nn$W <- lapply(seq_along(nn$W), function(i) nn$W[[i]] - (eta*dW_avg[[i]]))
+    nn$b <- lapply(seq_along(nn$b), function(i) nn$b[[i]] - (eta * db_avg[[i]]))
   }
   
   # return the updated list
