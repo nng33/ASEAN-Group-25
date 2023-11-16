@@ -200,10 +200,10 @@ get_prediction <- function(nn, input){
   pred_all_prob <- lapply(h_all, softmax)
   
   # get predicted class which is the class with the highest probability
-  pred_class <- lapply(pred_all_prob, which.max)
+  pred_class <- sapply(pred_all_prob, which.max)
   
   # return a vector of predicted classes
-  return(unlist(pred_class))
+  return(pred_class)
 }
 
 get_mis_rate <- function(predicted, observed){
