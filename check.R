@@ -379,4 +379,16 @@ system.time(test1 <- lapply(nn$W, function(x){x*0}))
 
 lapply(nn$b, rep, x=0)
 
+############################################################
+
+a <- matrix(1:1000^2, 1000,1000)
+b <- seq(1,1000)
+system.time(t(a) %*% b)
+system.time(crossprod(a,b))
+
+
+
+
+
+
 
