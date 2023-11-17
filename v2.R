@@ -155,7 +155,7 @@ get_zero_matrix <- function(mat){
 }
 
 get_zero_vector <- function(v){
-  # get_zero_array() creates a vector of zero entries with
+  # get_zero_vector() creates a vector of zero entries with
   # the same length as vector v
   return(numeric(length(v)))
 }
