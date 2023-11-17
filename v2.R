@@ -50,21 +50,17 @@ netup <- function(d) {
 
 
 ReLU <- function(x) {
-  
   # ReLU() applies ReLU activation function to array x
   # returns an array of the transformed input
- 
   return(pmax(x, 0))
 }
 
 
 softmax <- function(h){
-  
   # softmax() returns the node values applied to 
   # the softmax() activation function
   # input:
   # h: array of node values
-  
   return(exp(h)/sum(exp(h)))
 }
 
@@ -155,28 +151,23 @@ backward <- function(nn, k){
 get_zero_matrix <- function(mat){
   # get_zero_matrix() creates a matrix of zero entries with
   # the same dimension of matrix mat
-  
   return(matrix(0, nrow(mat), ncol(mat)))
 }
 
 get_zero_vector <- function(v){
   # get_zero_array() creates a vector of zero entries with
   # the same length as vector v
-  
   return(numeric(length(v)))
 }
 
 avg_gradient <- function(x, mb){
   # avg_gradient() divides matrix x by constant mb
-  
   return(x/mb)
 }
 
 add_list <- function(list1, list2, i){
   # add_list() adds two matrices in two different list of index [[i]]
-  
   return(list1[[i]] + list2[[i]])
-  
 }
 
 update_param <- function(param, grad, eta, i){
@@ -186,9 +177,7 @@ update_param <- function(param, grad, eta, i){
   # grad: list of corresponding gradient
   # eta: constant step size
   # i: index of which parameter layer to be updated
-  
   return(param[[i]] - (eta * grad[[i]]))
-  
 }
 
 train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
