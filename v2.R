@@ -339,7 +339,7 @@ inp <- training_data[,-ncol(training_data)]
 # the corresponding output of training data
 k <- training_data[,ncol(training_data)]
 
-# a vector of the number of nodes in each layer
+# d is a vector of the number of nodes in each layer
 d <- c(4,8,7,3)
 
 # build the network:
@@ -354,7 +354,7 @@ loss_pre_train <- get_prediction(nn, test_data_inp, test_data_out)$loss
 # step 2: train the network
 start <- Sys.time()
 Rprof()
-system.time(nn <- train(nn, inp, k, nstep = 10000))
+system.time(nn <- train(nn, inp, k))
 Rprof(NULL)
 summaryRprof()
 period <- Sys.time() - start
@@ -365,7 +365,7 @@ period
 # make predictions with test data
 pred <- get_prediction(nn, test_data_inp, test_data_out)
 
-# loss post training
+# loss value post training
 loss_post_train <- pred$loss
 
 # loss difference from pre- to post-training
