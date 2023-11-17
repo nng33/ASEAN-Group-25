@@ -117,14 +117,19 @@ backward <- function(nn, k){
   # derivative w.r.t. to biases has same dimension as b
   db <- nn$b
   
+  # last layer position
+  L <- length(nn$h)
+  
   # derivative of the loss for k_i w.r.t. the nodes in the last layer of hL
-  dh[[length(dh)]] <- softmax(nn$h[[length(nn$h)]])
-  dh[[length(dh)]][k] <- dh[[length(dh)]][k] - 1
+  dh[[L]] <- softmax(nn$h[[L]])
+  
+  # if j == k, need to -1
+  dh[[L]][k] <- dh[[L]][k] - 1
   
   # Back-propagate through the layers to obtain the other derivatives
   # start from the last layer and work backwards
   # we have length(nn$h)-1 layer of weights and biases to populate
-  for(i in (length(nn$h)-1):1){
+  for(i in (L-1):1){
     
     # give logical mask for d_j^l+1 > 0 
     relu_der <- nn$h[[i+1]] > 0 
@@ -148,7 +153,6 @@ backward <- function(nn, k){
 }
 
 get_zero_matrix <- function(mat){
-  
   # get_zero_matrix() creates a matrix of zero entries with
   # the same dimension of matrix mat
   
@@ -156,7 +160,6 @@ get_zero_matrix <- function(mat){
 }
 
 get_zero_vector <- function(v){
-  
   # get_zero_array() creates a vector of zero entries with
   # the same length as vector v
   
@@ -164,25 +167,29 @@ get_zero_vector <- function(v){
 }
 
 avg_gradient <- function(x, mb){
-  
   # avg_gradient() divides matrix x by constant mb
   
   return(x/mb)
 }
 
-# add_weight <- function(i) {
-#       
-#   # add_weight adds the change in weights at each step
-#       
-#   return(dW_avg[[i]] + nn$dW[[i]])
-# }
+add_list <- function(list1, list2, i){
+  # add_list() adds two matrices in two different list of index [[i]]
+  
+  return(list1[[i]] + list2[[i]])
+  
+}
 
-# add_bias <- function(j) {
-#       
-#       # add_weight adds the change in weights at each step
-#       
-#       return(db_avg[[j]] + nn$db[[j]])
-# }
+update_param <- function(param, grad, eta, i){
+  # update_param() returns the updated parameter after stepping
+  # inputs:
+  # param: a list of parameter layers to be updated
+  # grad: list of corresponding gradient
+  # eta: constant step size
+  # i: index of which parameter layer to be updated
+  
+  return(param[[i]] - (eta * grad[[i]]))
+  
+}
 
 train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
   
@@ -218,8 +225,11 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
       nn <- backward(nn, k_mb[j])
       
       # step 3: aggregate gradients
-      dW_avg <- lapply(seq_along(dW_avg), function(i) dW_avg[[i]] + nn$dW[[i]])
-      db_avg <- lapply(seq_along(db_avg), function(i) db_avg[[i]] + nn$db[[i]])
+      dW_avg <- lapply(seq_along(dW_avg), add_list, 
+                       list1 = dW_avg, list2 = nn$dW)
+      
+      db_avg <- lapply(seq_along(db_avg), add_list, 
+                       list1 = db_avg, list2 = nn$db)
     }
     
     # step 4: divide by mb to average the gradients
@@ -227,8 +237,11 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
     db_avg <- lapply(db_avg, avg_gradient, mb = mb)
 
     # step 5: update the parameters 
-    nn$W <- lapply(seq_along(nn$W), function(i) nn$W[[i]] - (eta*dW_avg[[i]]))
-    nn$b <- lapply(seq_along(nn$b), function(i) nn$b[[i]] - (eta * db_avg[[i]]))
+    nn$W <- lapply(seq_along(nn$W), update_param, 
+                   param = nn$W, grad = dW_avg, eta = eta)
+    
+    nn$b <- lapply(seq_along(nn$b), update_param, 
+                   param = nn$b, grad = db_avg, eta = eta)
   }
   
   # return the updated list
@@ -311,11 +324,13 @@ set.seed(2)
 nn <- netup(d)
 
 # step 2: train the network
+start <- Sys.time()
 Rprof()
-nn <- train(nn, inp, k)
+system.time(nn <- train(nn, inp, k))
 Rprof(NULL)
 summaryRprof()
-
+period <- Sys.time() - start
+period
 # Test the model:
 
 # make predictions with test data
