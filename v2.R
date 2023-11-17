@@ -13,13 +13,13 @@
 # This code provides 4 main functions to construct a trained simple neural 
 # network: netup(), forward(), backward(), and train().
 
-# A neural networkfor classification with flexible choice of number of layers 
+# A neural network for classification with flexible choice of number of layers 
 # and nodes is set up with netup(). It is then trained by stochastic 
 # gradient descent in train(). 
 
-# By forward(), each node value is calculated by applying 
-# the ReLU activation function to the linear combination of the values from the 
-# previous layer's nodes with weights and offset values/biases.
+# By forward(), each node value is calculated by applying the ReLU activation 
+# function to the linear combination of the values from the previous layer's 
+# nodes with weights and offset values/biases.
 
 # gradient of the loss function w.r.t to the parameters are calculated 
 # by backwards propagation in backward() to obtain the direction that 
@@ -31,7 +31,7 @@
 # The trained neural network can then be used to predict which class an 
 # observation belongs to by get_prediction() which also gives the loss function
 # (negative log likelihood of multinomial dist.) value. Decrease in loss
-# function value from pre- to post-training is evaluated and Misclassification 
+# function value from pre- to post-training is evaluated and misclassification 
 # rate is calculated with get_mis_rate() to determine the model's accuracy.
 ###############################################################################
 
