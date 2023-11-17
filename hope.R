@@ -154,12 +154,12 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
   # make matrices of nodes for training 
   # rows corresponds to which node, each column correspond to one 
   # data from the mini batch
-  train_h <- lapply(nn$h, function(j) {
-    matrix(rep(0, length(j)*mb), length(j), mb)
-  })
+  # train_h <- lapply(nn$h, function(j) {
+  #   matrix(rep(0, length(j)*mb), length(j), mb)
+  # })
   
   # update nodes in network from vectors to matrices for training
-  nn$h <- train_h
+  # nn$h <- train_h
   
   for (i in 1:nstep){
     # make the mini batch for this step

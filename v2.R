@@ -222,7 +222,7 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
       db_avg <- lapply(seq_along(db_avg), function(i) db_avg[[i]] + nn$db[[i]])
     }
     
-    # step 4: average the gradients
+    # step 4: divide by mb to average the gradients
     dW_avg <- lapply(dW_avg, avg_gradient, mb = mb)
     db_avg <- lapply(db_avg, avg_gradient, mb = mb)
 
