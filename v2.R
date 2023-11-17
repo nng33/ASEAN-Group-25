@@ -1,21 +1,83 @@
-## Frans : s2591760
-## Daiki : s2547603
+## Frans  : s2591760
+## Daiki  : s2547603
 ## Nathan : s2524152
 
+## github: https://github.com/nng33/ASEAN-Group-25
 
 ## Contribution to this project
-## Frans (%): Handled 
-## Daiki (%): Handled 
-## Nathan (%): Handled 
+## Frans  (33%): Handled train(), prediction and misclassification rate
+## Daiki  (33%): Handled backward() and netup()
+## Nathan (34%): Handled forward(), code efficiency with apply() family
 
+###############################################################################
+# This code provides 4 main functions to construct a trained simple neural 
+# network: netup(), forward(), backward(), and train().
 
-################################################################################
+# A neural networkfor classification with flexible choice of number of layers 
+# and nodes is set up with netup(). It is then trained by stochastic 
+# gradient descent in train(). 
 
+# By forward(), each node value is calculated by applying 
+# the ReLU activation function to the linear combination of the values from the 
+# previous layer's nodes with weights and offset values/biases.
 
+# gradient of the loss function w.r.t to the parameters are calculated 
+# by backwards propagation in backward() to obtain the direction that 
+# the parameters should adjust by.
 
+# The probability that the output variable is in a certain class is calculated
+# by applying the softmax activation function on the last layer's nodes.
 
-################################################################################
+# The trained neural network can then be used to predict which class an 
+# observation belongs to. Misclassification rate is then calculated to 
+# determine the model's accuracy.
+###############################################################################
 
+ReLU <- function(x) {
+  # ReLU() applies ReLU activation function to array x
+  # returns an array of the transformed input
+  return(pmax(x, 0))
+}
+
+softmax <- function(h){
+  # softmax() returns the node values applied to 
+  # the softmax() activation function
+  # input:
+  # h: array of node values
+  return(exp(h)/sum(exp(h)))
+}
+
+get_zero_matrix <- function(mat){
+  # get_zero_matrix() creates a matrix of zero entries with
+  # the same dimension of matrix mat
+  return(matrix(0, nrow(mat), ncol(mat)))
+}
+
+get_zero_vector <- function(v){
+  # get_zero_vector() creates a vector of zero entries with
+  # the same length as vector v
+  return(numeric(length(v)))
+}
+
+avg_gradient <- function(x, mb){
+  # avg_gradient() divides matrix x by constant mb
+  return(x/mb)
+}
+
+add_list <- function(list1, list2, i){
+  # add_list() adds two matrices in two different list of index [[i]]
+  return(list1[[i]] + list2[[i]])
+}
+
+update_param <- function(param, grad, eta, i){
+  # update_param() returns the updated parameter after stepping
+  # inputs:
+  # param: a list of parameter layers to be updated
+  # grad: list of corresponding gradient
+  # eta: constant step size
+  # i: index of which parameter layer to be updated
+  return(param[[i]] - (eta * grad[[i]]))
+}
 
 netup <- function(d) {
   
@@ -48,23 +110,6 @@ netup <- function(d) {
   return(nn)
 }
 
-
-ReLU <- function(x) {
-  # ReLU() applies ReLU activation function to array x
-  # returns an array of the transformed input
-  return(pmax(x, 0))
-}
-
-
-softmax <- function(h){
-  # softmax() returns the node values applied to 
-  # the softmax() activation function
-  # input:
-  # h: array of node values
-  return(exp(h)/sum(exp(h)))
-}
-
-
 forward <- function(nn, inp){
   
   # forward() computes the node values of the network
@@ -86,7 +131,6 @@ forward <- function(nn, inp){
   # return the updated network
   return(nn)
 }
-
 
 backward <- function(nn, k){
   
@@ -146,38 +190,6 @@ backward <- function(nn, k){
   # return updated list
   nn <- list(h = nn$h, W = nn$W, b = nn$b, dh = dh, dW = dW, db = db)
   return(nn)
-}
-
-get_zero_matrix <- function(mat){
-  # get_zero_matrix() creates a matrix of zero entries with
-  # the same dimension of matrix mat
-  return(matrix(0, nrow(mat), ncol(mat)))
-}
-
-get_zero_vector <- function(v){
-  # get_zero_vector() creates a vector of zero entries with
-  # the same length as vector v
-  return(numeric(length(v)))
-}
-
-avg_gradient <- function(x, mb){
-  # avg_gradient() divides matrix x by constant mb
-  return(x/mb)
-}
-
-add_list <- function(list1, list2, i){
-  # add_list() adds two matrices in two different list of index [[i]]
-  return(list1[[i]] + list2[[i]])
-}
-
-update_param <- function(param, grad, eta, i){
-  # update_param() returns the updated parameter after stepping
-  # inputs:
-  # param: a list of parameter layers to be updated
-  # grad: list of corresponding gradient
-  # eta: constant step size
-  # i: index of which parameter layer to be updated
-  return(param[[i]] - (eta * grad[[i]]))
 }
 
 train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
@@ -272,20 +284,26 @@ get_mis_rate <- function(predicted, observed){
   return(rate)  
 }
 
-
 ###############################################################################
-# application
+
+# Training a 4-8-7-3 network on iris data set to classify irises species
 
 # data is iris data
 data <- iris
 
+# number of data column
+col_data <- ncol(data)
+
+# vector of possible output classes
+classes <- as.vector(unique(data[, col_data]))
+
 # assume output is in the very last column
 # convert categorical output into integers
-data[, ncol(data)] <- as.numeric(data[, ncol(data)])
+data[, col_data] <- as.numeric(data[, col_data])
 
 # divide the data into training and test data:
 
-# get test data
+# test data every 5th row starting from row 5
 test_data <- as.matrix(data[seq(5, nrow(data), by = 5),])
 
 # the input for test data
@@ -297,17 +315,17 @@ test_data_out <- test_data[,ncol(test_data)]
 # get training data
 training_data <- as.matrix(data[-seq(5, nrow(data), by = 5),])
 
-# the corresponding output of training data
-k <- training_data[,ncol(training_data)]
-
 # the input for the training data
 inp <- training_data[,-ncol(training_data)]
+
+# the corresponding output of training data
+k <- training_data[,ncol(training_data)]
 
 # a vector of the number of nodes in each layer
 d <- c(4,8,7,3)
 
-# train the network:
-set.seed(2)
+# build the network:
+set.seed(2) # successful example
 
 # step 1: set the network
 nn <- netup(d)
@@ -320,12 +338,21 @@ Rprof(NULL)
 summaryRprof()
 period <- Sys.time() - start
 period
+
 # Test the model:
 
 # make predictions with test data
-pred_class <- get_prediction(nn, test_data_inp)
+pred_output <- get_prediction(nn, test_data_inp)
+
+# predicted species of test data
+Predicted.Species <- classes[pred_output]
+
+# true observed species of test data
+Observed.Species <- classes[test_data_out]
+
+# put test data, predicted species, and the true observed species together
+test_data_pred <- cbind(test_data_inp, Predicted.Species, 
+                        Observed.Species)
 
 # get the misclassification rate
-mis_rate <- get_mis_rate(pred_class, test_data_out)
-
-mis_rate
+mis_rate <- get_mis_rate(pred_output, test_data_out)
