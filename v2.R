@@ -81,7 +81,7 @@ update_param <- function(param, grad, eta, i){
   return(param[[i]] - (eta * grad[[i]]))
 }
 
-netup <- function(d) {
+netup <- function(d){
   
   # netup() is for initializing the network, 
   # which includes the weights, biases and nodes
@@ -93,17 +93,17 @@ netup <- function(d) {
   # (3) b: a list of offset/bias vectors. b[[l]] links layer l to l+1
   
   # initialize weights with Uniform(0, 0.2) random deviates
-  W <- lapply(seq_along(d)[-length(d)], function(i) {
+  W <- lapply(seq_along(d)[-length(d)], function(i){
     matrix(runif(d[i] * d[i+1], 0, 0.2), d[i+1], d[i])
   })
   
   # initialize all node values to be 0
-  h <- lapply(seq_along(d), function(j) {
+  h <- lapply(seq_along(d), function(j){
     rep(0, times = d[j])
   })
   
   # initialize offsets with Uniform(0, 0.2) random deviates
-  b <- lapply(seq_along(d)[-1], function(z) {
+  b <- lapply(seq_along(d)[-1], function(z){
     runif(d[z], 0, 0.2)
   })
   
@@ -180,10 +180,10 @@ backward <- function(nn, k){
     dl1 <- dh[[i+1]] * relu_der
     
     # update dh for the current layer
-    dh[[i]] <- t(nn$W[[i]]) %*% dl1
+    dh[[i]] <- crossprod(nn$W[[i]], dl1)
     
     # update gradients for weights
-    dW[[i]] <- dl1 %*% t(nn$h[[i]])
+    dW[[i]] <- tcrossprod(dl1, nn$h[[i]])
     
     # update gradients for biases
     db[[i]] <- dl1
@@ -228,9 +228,11 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
       nn <- backward(nn, k_mb[j])
       
       # step 3: aggregate gradients
+      # sum gradient loss w.r.t. weights
       dW_avg <- lapply(seq_along(dW_avg), add_list,
                        list1 = dW_avg, list2 = nn$dW)
-
+      
+      # sum gradient loss w.r.t. biases
       db_avg <- lapply(seq_along(db_avg), add_list,
                        list1 = db_avg, list2 = nn$db)
     }
@@ -239,10 +241,12 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
     dW_avg <- lapply(dW_avg, avg_gradient, mb = mb)
     db_avg <- lapply(db_avg, avg_gradient, mb = mb)
 
-    # step 5: update the parameters 
+    # step 5: update the parameters
+    # update weights
     nn$W <- lapply(seq_along(nn$W), update_param, 
                    param = nn$W, grad = dW_avg, eta = eta)
     
+    # update biases
     nn$b <- lapply(seq_along(nn$b), update_param, 
                    param = nn$b, grad = db_avg, eta = eta)
   }
