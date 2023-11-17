@@ -5,9 +5,9 @@
 ## github: https://github.com/nng33/ASEAN-Group-25
 
 ## Contribution to this project
-## Frans  (33%): Handled train(), prediction and misclassification rate
+## Frans  (34%): Handled train(), prediction and misclassification rate
 ## Daiki  (33%): Handled backward() and netup()
-## Nathan (34%): Handled forward(), code efficiency with apply() family
+## Nathan (33%): Handled forward(), code efficiency with apply() family
 
 ###############################################################################
 # This code provides 4 main functions to construct a trained simple neural 
@@ -117,10 +117,10 @@ forward <- function(nn, inp){
   # forward() computes the node values of the network
   # inputs:
   # (1) nn: a network list as returned by netup()
-  # (2) inp: a vector of input values for the first layer
+  # (2) inp: a vector of input values to feed into the first layer
   # returns the updated version of network list
   
-  # put the values for the first layer
+  # insert the values into the first layer
   nn$h[[1]] <- inp
   
   # compute and update the remaining node values
@@ -162,14 +162,14 @@ backward <- function(nn, k){
   # last layer position
   L <- length(nn$h)
   
+  # Back-propagate through the layers to obtain the other derivatives
+  # start from the last layer and work backwards
   # derivative of the loss for k_i w.r.t. the nodes in the last layer of hL
   dh[[L]] <- softmax(nn$h[[L]])
   
   # if j == k, need to -1
   dh[[L]][k] <- dh[[L]][k] - 1
   
-  # Back-propagate through the layers to obtain the other derivatives
-  # start from the last layer and work backwards
   # we have length(nn$h)-1 layer of weights and biases to populate
   for(i in (L-1):1){
     
@@ -221,10 +221,10 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
     
     # run network for each data in mini batch
     for (j in 1:mb){
-      # step 1: fill in network
+      # step 1: fill in the network
       nn <- forward(nn, mini_batch[j,])
       
-      # step 2: get gradients
+      # step 2: obtain gradients
       nn <- backward(nn, k_mb[j])
       
       # step 3: aggregate gradients
@@ -278,7 +278,8 @@ get_prediction <- function(nn, input, k){
   # transform node values to probabilities
   pred_all_prob <- lapply(h_all, softmax)
   
-  # pk is vector of probability that data belongs to the true observed output
+  # pk is vector of probability that data is classified to the true 
+  # observed output
   pk <- mapply("[", pred_all_prob, k)
   
   # calculate loss function value
@@ -309,10 +310,10 @@ get_mis_rate <- function(predicted, observed){
 # data is iris data
 data <- iris
 
-# number of data column
+# number columns in data
 col_data <- ncol(data)
 
-# vector of possible output classes
+# vector of all possible output classes
 classes <- as.vector(unique(data[, col_data]))
 
 # assume output is in the very last column
@@ -352,13 +353,7 @@ nn <- netup(d)
 loss_pre_train <- get_prediction(nn, test_data_inp, test_data_out)$loss
 
 # step 2: train the network
-start <- Sys.time()
-Rprof()
-system.time(nn <- train(nn, inp, k))
-Rprof(NULL)
-summaryRprof()
-period <- Sys.time() - start
-period
+nn <- train(nn, inp, k)
 
 # Test the model:
 
@@ -381,7 +376,5 @@ Observed.Species <- classes[test_data_out]
 test_data_pred <- cbind(test_data_inp, Predicted.Species, 
                         Observed.Species)
 
-# get the misclassification rate
+# obtain the misclassification rate
 mis_rate <- get_mis_rate(pred$pred_output, test_data_out)
-
-
