@@ -91,6 +91,7 @@ netup <- function(d){
   # (1) h: a list of nodes for each layer
   # (2) W: a list of weight matrices. W[[l]] links layer l to l+1
   # (3) b: a list of offset/bias vectors. b[[l]] links layer l to l+1
+  # returns a network list
   
   # initialize weights with Uniform(0, 0.2) random deviates
   W <- lapply(seq_along(d)[-length(d)], function(i){
@@ -136,7 +137,7 @@ forward <- function(nn, inp){
 
 backward <- function(nn, k){
   
-  # backward() is for computing the derivatives of the loss
+  # backward() computes the derivatives of the loss
   # inputs:
   # (1) nn: a network list as returned by forward()
   # (2) k: output class
@@ -147,16 +148,17 @@ backward <- function(nn, k){
   # (4) dh: a list of the derivative w.r.t. the nodes
   # (5) dW: a list of the derivative w.r.t. the weight matrices
   # (6) db: a list of the derivative w.r.t. the offset vectors
+  # returns the updated network list
   
   # initialize lists for storing derivatives of the loss function:
   
-  # derivative w.r.t. to the nodes has same dimension as h
+  # derivative w.r.t. to the nodes have same dimensions as h
   dh <- nn$h
   
-  # derivative w.r.t. to weights has same dimension as W
+  # derivative w.r.t. to weights have same dimensions as W
   dW <- nn$W
   
-  # derivative w.r.t. to biases has same dimension as b
+  # derivative w.r.t. to biases have same dimensions as b
   db <- nn$b
   
   # last layer position
@@ -164,6 +166,7 @@ backward <- function(nn, k){
   
   # Back-propagate through the layers to obtain the other derivatives
   # start from the last layer and work backwards
+  
   # derivative of the loss for k_i w.r.t. the nodes in the last layer of hL
   dh[[L]] <- softmax(nn$h[[L]])
   
@@ -205,7 +208,7 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
   # (4) eta: the step size
   # (5) mb: the number of data to randomly sample to compute the gradient
   # (6) nstep: the number of optimization steps to take
-  # train() returns the updated version of network list
+  # returns the updated version of network list
   
   # loop through each step
   for (i in 1:nstep){
@@ -264,7 +267,7 @@ get_prediction <- function(nn, input, k){
   # nn: a network list
   # input: the input data matrix. one row for each data, columns are variables
   # k: a vector of true observed output class
-  # returns the predicted output class and loss function value
+  # returns a list of predicted output class and loss function value
   
   # number of observations n
   n <- length(k)
@@ -298,7 +301,7 @@ get_mis_rate <- function(predicted, observed){
   # inputs:
   # predicted: a vector of predicted output class
   # observed: a vector of true output class
-
+  
   rate <- sum(predicted != observed)/length(observed)
   return(rate)  
 }
@@ -310,13 +313,15 @@ get_mis_rate <- function(predicted, observed){
 # data is iris data
 data <- iris
 
+# assume each row is for each observation and the columns are the 
+# characteristics except the last column which is the observed output class.
+
 # number columns in data
 col_data <- ncol(data)
 
 # vector of all possible output classes
 classes <- as.vector(unique(data[, col_data]))
 
-# assume output is in the very last column
 # convert categorical output into integers
 data[, col_data] <- as.numeric(data[, col_data])
 
@@ -366,13 +371,13 @@ loss_post_train <- pred$loss
 # loss difference from pre- to post-training
 loss_diff <- loss_pre_train - loss_post_train
 
-# predicted species of test data
-Predicted.Species <- classes[pred$pred_output]
+# predicted class of test data
+Predicted.Class <- classes[pred$pred_output]
 
-# true observed species of test data
-Observed.Species <- classes[test_data_out]
+# true observed class of test data
+Observed.Class <- classes[test_data_out]
 
-# put test data, predicted species, and the true observed species together
+# put test data, predicted class, and the true observed class in a matrix
 test_data_pred <- cbind(test_data_inp, Predicted.Species, 
                         Observed.Species)
 
