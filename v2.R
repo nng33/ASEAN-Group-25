@@ -29,8 +29,10 @@
 # by applying the softmax activation function on the last layer's nodes.
 
 # The trained neural network can then be used to predict which class an 
-# observation belongs to. Misclassification rate is then calculated to 
-# determine the model's accuracy.
+# observation belongs to by get_prediction() which also gives the loss function
+# (negative log likelihood of multinomial dist.) value. Decrease in loss
+# function value from pre- to post-training is evaluated and Misclassification 
+# rate is calculated with get_mis_rate() to determine the model's accuracy.
 ###############################################################################
 
 ReLU <- function(x) {
@@ -226,10 +228,10 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
       nn <- backward(nn, k_mb[j])
       
       # step 3: aggregate gradients
-      dW_avg <- lapply(seq_along(dW_avg), add_list, 
+      dW_avg <- lapply(seq_along(dW_avg), add_list,
                        list1 = dW_avg, list2 = nn$dW)
-      
-      db_avg <- lapply(seq_along(db_avg), add_list, 
+
+      db_avg <- lapply(seq_along(db_avg), add_list,
                        list1 = db_avg, list2 = nn$db)
     }
     
@@ -249,13 +251,19 @@ train <- function(nn, inp, k, eta=.01, mb=10, nstep=10000){
   return(nn)
 }
 
-get_prediction <- function(nn, input){
+
+get_prediction <- function(nn, input, k){
   
-  # get_prediction() predicts using the neural network
+  # get_prediction() predicts using the neural network and calculates
+  # the loss function value (negative log-likelihood of multinomial dist.)
   # inputs:
   # nn: a network list
   # input: the input data matrix. one row for each data, columns are variables
-  # returns the predicted output class
+  # k: a vector of true observed output class
+  # returns the predicted output class and loss function value
+  
+  # number of observations n
+  n <- length(k)
   
   # fill in network for each data
   new_net <- apply(input, 1, forward, nn = nn)
@@ -266,11 +274,17 @@ get_prediction <- function(nn, input){
   # transform node values to probabilities
   pred_all_prob <- lapply(h_all, softmax)
   
-  # get predicted class which is the class with the highest probability
-  pred_class <- sapply(pred_all_prob, which.max)
+  # pk is vector of probability that data belongs to the true observed output
+  pk <- mapply("[", pred_all_prob, k)
   
-  # return a vector of predicted classes
-  return(pred_class)
+  # calculate loss function value
+  loss <- -sum(log(pk))/n
+  
+  # get predicted output which is the output with the highest probability
+  pred_output <- sapply(pred_all_prob, which.max)
+  
+  # return a vector of predicted output and loss function value
+  return(list(pred_output = pred_output, loss = loss))
 }
 
 get_mis_rate <- function(predicted, observed){
@@ -330,10 +344,13 @@ set.seed(2) # successful example
 # step 1: set the network
 nn <- netup(d)
 
+# step 1.1: get loss pre training
+loss_pre_train <- get_prediction(nn, test_data_inp, test_data_out)$loss
+
 # step 2: train the network
 start <- Sys.time()
 Rprof()
-system.time(nn <- train(nn, inp, k))
+system.time(nn <- train(nn, inp, k, nstep = 10000))
 Rprof(NULL)
 summaryRprof()
 period <- Sys.time() - start
@@ -342,10 +359,16 @@ period
 # Test the model:
 
 # make predictions with test data
-pred_output <- get_prediction(nn, test_data_inp)
+pred <- get_prediction(nn, test_data_inp, test_data_out)
+
+# loss post training
+loss_post_train <- pred$loss
+
+# loss difference from pre- to post-training
+loss_diff <- loss_pre_train - loss_post_train
 
 # predicted species of test data
-Predicted.Species <- classes[pred_output]
+Predicted.Species <- classes[pred$pred_output]
 
 # true observed species of test data
 Observed.Species <- classes[test_data_out]
@@ -355,4 +378,6 @@ test_data_pred <- cbind(test_data_inp, Predicted.Species,
                         Observed.Species)
 
 # get the misclassification rate
-mis_rate <- get_mis_rate(pred_output, test_data_out)
+mis_rate <- get_mis_rate(pred$pred_output, test_data_out)
+
+
