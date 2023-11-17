@@ -267,7 +267,7 @@ get_prediction <- function(nn, input, k){
   # nn: a network list
   # input: the input data matrix. one row for each data, columns are variables
   # k: a vector of true observed output class
-  # returns a list of predicted output class and loss function value
+  # returns a list of predicted output class and loss value
   
   # number of observations n
   n <- length(k)
@@ -285,13 +285,13 @@ get_prediction <- function(nn, input, k){
   # observed output
   pk <- mapply("[", pred_all_prob, k)
   
-  # calculate loss function value
+  # calculate loss
   loss <- -sum(log(pk))/n
   
   # get predicted output which is the output with the highest probability
   pred_output <- sapply(pred_all_prob, which.max)
   
-  # return a vector of predicted output and loss function value
+  # return a vector of predicted output and loss
   return(list(pred_output = pred_output, loss = loss))
 }
 
@@ -365,7 +365,7 @@ nn <- train(nn, inp, k)
 # make predictions with test data
 pred <- get_prediction(nn, test_data_inp, test_data_out)
 
-# loss value post training
+# loss post training
 loss_post_train <- pred$loss
 
 # loss difference from pre- to post-training
@@ -378,8 +378,25 @@ Predicted.Class <- classes[pred$pred_output]
 Observed.Class <- classes[test_data_out]
 
 # put test data, predicted class, and the true observed class in a matrix
-test_data_pred <- cbind(test_data_inp, Predicted.Species, 
-                        Observed.Species)
+test_data_pred <- cbind(test_data_inp, Predicted.Class, 
+                        Observed.Class)
 
 # obtain the misclassification rate
 mis_rate <- get_mis_rate(pred$pred_output, test_data_out)
+
+# print results
+print(paste("The misclassification rate is:", mis_rate))
+print(paste("The loss pre-training is:", loss_pre_train))
+print(paste("The loss post-training is:", loss_post_train))
+print(paste("Training has reduced the loss by:", loss_diff))
+
+
+
+
+
+
+
+
+
+
+
